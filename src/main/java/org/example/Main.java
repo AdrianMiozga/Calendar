@@ -43,9 +43,8 @@ public class Main {
 
             long hours = totalSeconds / 3600;
             long minutes = (totalSeconds % 3600) / 60;
-            long seconds = totalSeconds % 60;
 
-            String formattedDuration = String.format("%dh %dm %ds", hours, minutes, seconds);
+            String formattedDuration = String.format("%dh %dm", hours, minutes);
             System.out.println(pair.getKey() + ": " + formattedDuration);
         }
     }
