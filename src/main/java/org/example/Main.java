@@ -24,17 +24,18 @@ public class Main {
 
         HashMap<String, Long> eventToTime = new HashMap<>();
 
-        for (Event event : eventResponse.items()) {
-            OffsetDateTime start = OffsetDateTime.parse(event.start().dateTime());
-            OffsetDateTime end = OffsetDateTime.parse(event.end().dateTime());
+        for (Event event : eventResponse.events()) {
+            OffsetDateTime start = OffsetDateTime.parse(event.start().offsetDateTime());
+            OffsetDateTime end = OffsetDateTime.parse(event.end().offsetDateTime());
 
             Duration duration = Duration.between(start, end);
 
-            if (eventToTime.containsKey(event.summary())) {
-                long updatedDuration = eventToTime.get(event.summary()) + duration.getSeconds();
-                eventToTime.put(event.summary(), updatedDuration);
+            if (eventToTime.containsKey(event.title())) {
+                long updatedDuration = eventToTime.get(event.title()) + duration.getSeconds();
+
+                eventToTime.put(event.title(), updatedDuration);
             } else {
-                eventToTime.put(event.summary(), duration.getSeconds());
+                eventToTime.put(event.title(), duration.getSeconds());
             }
         }
 

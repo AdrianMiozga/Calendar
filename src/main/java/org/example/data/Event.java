@@ -1,5 +1,8 @@
 package org.example.data;
 
-public record Event(String summary, Start start, End end) {
+import com.google.gson.annotations.SerializedName;
+
+
+public record Event(@SerializedName("summary") String title, Time start, Time end) {
 
 }
