@@ -1,22 +1,70 @@
 package org.example;
 
-import org.example.data.CalendarRepository;
-import org.example.data.Event;
-import org.example.data.EventResponse;
-import retrofit2.Response;
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
+import org.example.config.Constants;
+import org.example.data.*;
+import org.example.util.Util;
 
+import java.awt.*;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.net.URI;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
+import java.util.Properties;
 
 
 public class Main {
 
-    public static void main(String[] args) {
-        CalendarRepository calendarRepository = new CalendarRepository();
+    // TODO: Use callback
+    private static HttpServer httpServer;
+    private static String retrievedCode;
 
-        Response<EventResponse> response = calendarRepository.getEvents();
-        EventResponse eventResponse = response.body();
+    public static void main(String[] args) throws Exception {
+        var properties = new Properties();
+
+        try {
+            properties.load(new FileInputStream(Constants.APPLICATION_PROPERTIES));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        var scope =
+                "https://www.googleapis.com/auth/calendar.readonly+https://www.googleapis.com/auth/calendar.events.readonly";
+        var uri = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty("clientId")
+                + "&redirect_uri=" + properties.getProperty("redirectURI") + "&response_type=code&scope=" + scope;
+
+        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+            Desktop.getDesktop().browse(new URI(uri));
+        }
+
+        httpServer = HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty("port"))), 0);
+        httpServer.createContext("/redirect", new MyHandler());
+        httpServer.setExecutor(null);
+        httpServer.start();
+
+        synchronized (Main.class) {
+            Main.class.wait();
+        }
+
+        var OAuthRepository = new OAuthRepository();
+        var OAuthResponse = OAuthRepository.getResponse(retrievedCode);
+
+        var token = OAuthResponse.body().accessToken();
+
+        if (token == null) {
+            throw new IllegalStateException("Access token is null");
+        }
+
+        var calendarRepository = new CalendarRepository();
+
+        var calendarResponse = calendarRepository.getEvents("Bearer " + token);
+        var eventResponse = calendarResponse.body();
 
         if (eventResponse == null) {
             throw new IllegalStateException("eventResponse is null");
@@ -24,14 +72,14 @@ public class Main {
 
         HashMap<String, Long> eventToTime = new HashMap<>();
 
-        for (Event event : eventResponse.events()) {
-            OffsetDateTime start = OffsetDateTime.parse(event.start().offsetDateTime());
-            OffsetDateTime end = OffsetDateTime.parse(event.end().offsetDateTime());
+        for (var event : eventResponse.events()) {
+            var start = OffsetDateTime.parse(event.start().offsetDateTime());
+            var end = OffsetDateTime.parse(event.end().offsetDateTime());
 
-            Duration duration = Duration.between(start, end);
+            var duration = Duration.between(start, end);
 
             if (eventToTime.containsKey(event.title())) {
-                long updatedDuration = eventToTime.get(event.title()) + duration.getSeconds();
+                var updatedDuration = eventToTime.get(event.title()) + duration.getSeconds();
 
                 eventToTime.put(event.title(), updatedDuration);
             } else {
@@ -40,13 +88,40 @@ public class Main {
         }
 
         for (var pair : eventToTime.entrySet()) {
-            long totalSeconds = pair.getValue();
+            var totalSeconds = pair.getValue();
 
-            long hours = totalSeconds / 3600;
-            long minutes = (totalSeconds % 3600) / 60;
+            var hours = totalSeconds / 3600;
+            var minutes = (totalSeconds % 3600) / 60;
 
-            String formattedDuration = String.format("%dh %dm", hours, minutes);
+            var formattedDuration = String.format("%dh %dm", hours, minutes);
             System.out.println(pair.getKey() + ": " + formattedDuration);
+        }
+    }
+
+    static class MyHandler implements HttpHandler {
+
+        @Override
+        public void handle(HttpExchange httpExchange) throws IOException {
+            var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
+
+            if (code == null) {
+                return;
+            }
+
+            retrievedCode = code;
+
+            var response = "<p>You can close this page</p>";
+            httpExchange.sendResponseHeaders(200, response.length());
+
+            OutputStream outputStream = httpExchange.getResponseBody();
+            outputStream.write(response.getBytes());
+            outputStream.close();
+
+            httpServer.stop(0);
+
+            synchronized (Main.class) {
+                Main.class.notify();
+            }
         }
     }
 }

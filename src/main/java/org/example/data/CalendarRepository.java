@@ -6,9 +6,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Properties;
 
 
 public class CalendarRepository {
@@ -21,16 +19,8 @@ public class CalendarRepository {
             .build()
             .create(CalendarService.class);
 
-    public Response<EventResponse> getEvents() {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream("oauth2.properties"));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        Call<EventResponse> calendarList = calendarService.getEvents(properties.getProperty("token"));
+    public Response<EventResponse> getEvents(String token) {
+        Call<EventResponse> calendarList = calendarService.getEvents(token);
 
         try {
             return calendarList.execute();
