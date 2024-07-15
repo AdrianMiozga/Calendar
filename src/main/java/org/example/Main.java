@@ -7,6 +7,7 @@ import retrofit2.Response;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.HashMap;
 
 
 public class Main {
@@ -18,10 +19,10 @@ public class Main {
         EventResponse eventResponse = response.body();
 
         if (eventResponse == null) {
-            return;
+            throw new IllegalStateException("eventResponse is null");
         }
 
-        long totalSeconds = 0;
+        HashMap<String, Long> eventToTime = new HashMap<>();
 
         for (Event event : eventResponse.items()) {
             OffsetDateTime start = OffsetDateTime.parse(event.start().dateTime());
@@ -29,14 +30,23 @@ public class Main {
 
             Duration duration = Duration.between(start, end);
 
-            totalSeconds += duration.getSeconds();
+            if (eventToTime.containsKey(event.summary())) {
+                long updatedDuration = eventToTime.get(event.summary()) + duration.getSeconds();
+                eventToTime.put(event.summary(), updatedDuration);
+            } else {
+                eventToTime.put(event.summary(), duration.getSeconds());
+            }
         }
 
-        long hours = totalSeconds / 3600;
-        long minutes = (totalSeconds % 3600) / 60;
-        long seconds = totalSeconds % 60;
+        for (var pair : eventToTime.entrySet()) {
+            long totalSeconds = pair.getValue();
 
-        String formattedDuration = String.format("%dh %dm %ds", hours, minutes, seconds);
-        System.out.println("Total for all events: " + formattedDuration);
+            long hours = totalSeconds / 3600;
+            long minutes = (totalSeconds % 3600) / 60;
+            long seconds = totalSeconds % 60;
+
+            String formattedDuration = String.format("%dh %dm %ds", hours, minutes, seconds);
+            System.out.println(pair.getKey() + ": " + formattedDuration);
+        }
     }
 }
