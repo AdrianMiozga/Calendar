@@ -29,22 +29,24 @@ public class Main {
         var properties = new Properties();
 
         try {
-            properties.load(new FileInputStream(Constants.APPLICATION_PROPERTIES));
+            properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
         var scope =
                 "https://www.googleapis.com/auth/calendar.readonly+https://www.googleapis.com/auth/calendar.events.readonly";
-        var uri = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty("clientId")
-                + "&redirect_uri=" + properties.getProperty("redirectURI") + "&response_type=code&scope=" + scope;
+        var uri =
+                "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty(Constants.CLIENT_ID)
+                        + "&redirect_uri=" + properties.getProperty(Constants.REDIRECT_URI)
+                        + "&response_type=code&scope=" + scope;
 
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             Desktop.getDesktop().browse(new URI(uri));
         }
 
-        httpServer = HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty("port"))), 0);
-        httpServer.createContext("/redirect", new MyHandler());
+        httpServer = HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty(Constants.PORT))), 0);
+        httpServer.createContext(properties.getProperty(Constants.REDIRECT_PATH), new MyHandler());
         httpServer.setExecutor(null);
         httpServer.start();
 

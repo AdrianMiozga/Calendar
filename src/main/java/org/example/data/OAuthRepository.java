@@ -25,13 +25,15 @@ public class OAuthRepository {
         Properties properties = new Properties();
 
         try {
-            properties.load(new FileInputStream(Constants.APPLICATION_PROPERTIES));
+            properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
 
-        Call<OAuthResponse> OAuthResponse = OAuthRepository.getResponse(code, properties.getProperty("clientId"),
-                properties.getProperty("clientSecret"), properties.getProperty("redirectURI"), "authorization_code");
+        Call<OAuthResponse> OAuthResponse =
+                OAuthRepository.getResponse(code, properties.getProperty(Constants.CLIENT_ID),
+                        properties.getProperty(Constants.CLIENT_SECRET), properties.getProperty(Constants.REDIRECT_URI),
+                        "authorization_code");
 
         try {
             return OAuthResponse.execute();
