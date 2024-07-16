@@ -25,7 +25,7 @@ public class Main {
 
     private static final CountDownLatch latch = new CountDownLatch(1);
     private static HttpServer httpServer;
-    private static String retrievedCode;
+    private static String authorizationCode;
 
     public static void main(String[] args) throws Exception {
         AccessToken accessToken = null;
@@ -69,7 +69,7 @@ public class Main {
                     return;
                 }
 
-                retrievedCode = code;
+                authorizationCode = code;
 
                 var response = "<p>You can close this page</p>";
                 httpExchange.sendResponseHeaders(200, response.length());
@@ -89,7 +89,7 @@ public class Main {
             latch.await();
 
             var OAuthRepository = new OAuthRepository();
-            var OAuthResponse = OAuthRepository.getResponse(retrievedCode).body();
+            var OAuthResponse = OAuthRepository.getAccessToken(authorizationCode).body();
 
             if (OAuthResponse == null) {
                 throw new IllegalStateException("Request body is null");

@@ -21,7 +21,7 @@ public class OAuthRepository {
             .build()
             .create(OAuthService.class);
 
-    public Response<OAuthResponse> getResponse(String code) {
+    public Response<OAuthResponse> getAccessToken(String authorizationCode) {
         Properties properties = new Properties();
 
         try {
@@ -31,7 +31,7 @@ public class OAuthRepository {
         }
 
         Call<OAuthResponse> OAuthResponse =
-                OAuthRepository.getResponse(code, properties.getProperty(Constants.CLIENT_ID),
+                OAuthRepository.getAccessToken(authorizationCode, properties.getProperty(Constants.CLIENT_ID),
                         properties.getProperty(Constants.CLIENT_SECRET), properties.getProperty(Constants.REDIRECT_URI),
                         "authorization_code");
 

@@ -9,7 +9,7 @@ import retrofit2.http.Query;
 public interface OAuthService {
 
     @POST("token")
-    Call<OAuthResponse> getResponse(@Query("code") String code, @Query("client_id") String clientId,
+    Call<OAuthResponse> getAccessToken(@Query("code") String authorizationCode, @Query("client_id") String clientId,
             @Query("client_secret") String clientSecret, @Query("redirect_uri") String redirectURI,
             @Query("grant_type") String grantType);
 
