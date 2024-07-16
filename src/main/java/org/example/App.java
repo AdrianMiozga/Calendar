@@ -1,7 +1,6 @@
 package org.example;
 
 import org.example.data.event.EventRepository;
-import org.example.data.oauth2.OAuthRepository;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
@@ -10,11 +9,10 @@ import java.util.HashMap;
 
 public class App {
 
-    static void run() {
-        var accessToken = new OAuthRepository().getAccessToken();
+    private static final EventRepository eventRepository = new EventRepository();
 
-        var eventRepository = new EventRepository();
-        var events = eventRepository.getEventsFromPrimaryCalendar(accessToken);
+    static void run() {
+        var events = eventRepository.getEventsFromPrimaryCalendar();
 
         HashMap<String, Long> eventToTime = new HashMap<>();
 

@@ -1,6 +1,7 @@
 package org.example.data.event;
 
 import org.example.api.EventService;
+import org.example.data.oauth2.OAuthRepository;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -18,8 +19,10 @@ public class EventRepository {
             .build()
             .create(EventService.class);
 
-    public List<Event> getEventsFromPrimaryCalendar(String accessToken) {
-        Call<EventResponse> call = eventService.getEvents("Bearer " + accessToken);
+    private final static OAuthRepository OAuthRepository = new OAuthRepository();
+
+    public List<Event> getEventsFromPrimaryCalendar() {
+        Call<EventResponse> call = eventService.getEvents("Bearer " + OAuthRepository.getAccessToken());
 
         try {
             var eventResponse = call.execute().body();
