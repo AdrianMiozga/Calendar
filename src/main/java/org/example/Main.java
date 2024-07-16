@@ -6,12 +6,13 @@ import org.example.data.*;
 import org.example.util.Util;
 
 import java.awt.*;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Properties;
@@ -25,72 +26,96 @@ public class Main {
     private static final CountDownLatch latch = new CountDownLatch(1);
 
     public static void main(String[] args) throws Exception {
-        var properties = new Properties();
+        AccessToken accessToken = null;
 
-        try {
-            properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (Files.exists(Paths.get(Constants.ACCESS_TOKEN_FILE))) {
+            try (FileInputStream fileIn = new FileInputStream(Constants.ACCESS_TOKEN_FILE);
+                    ObjectInputStream in = new ObjectInputStream(fileIn)) {
+                accessToken = (AccessToken) in.readObject();
+            } catch (IOException | ClassNotFoundException exception) {
+                exception.printStackTrace();
+            }
         }
 
-        var scope =
-                "https://www.googleapis.com/auth/calendar.readonly+https://www.googleapis.com/auth/calendar.events.readonly";
-        var uri =
-                "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty(Constants.CLIENT_ID)
-                        + "&redirect_uri=" + properties.getProperty(Constants.REDIRECT_URI)
-                        + "&response_type=code&scope=" + scope;
+        if (accessToken == null || LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now())) {
+            var properties = new Properties();
 
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
-            Desktop.getDesktop().browse(new URI(uri));
-        }
-
-        httpServer =
-                HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty(Constants.PORT))), 0);
-
-        httpServer.createContext(properties.getProperty(Constants.REDIRECT_PATH), httpExchange -> {
-            var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
-
-            if (code == null) {
-                return;
+            try {
+                properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
 
-            retrievedCode = code;
+            var scope =
+                    "https://www.googleapis.com/auth/calendar.readonly+https://www.googleapis.com/auth/calendar.events.readonly";
+            var uri = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty(
+                    Constants.CLIENT_ID) + "&redirect_uri=" + properties.getProperty(Constants.REDIRECT_URI)
+                    + "&response_type=code&scope=" + scope;
 
-            var response = "<p>You can close this page</p>";
-            httpExchange.sendResponseHeaders(200, response.length());
+            if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+                Desktop.getDesktop().browse(new URI(uri));
+            }
 
-            OutputStream outputStream = httpExchange.getResponseBody();
-            outputStream.write(response.getBytes());
-            outputStream.close();
+            httpServer =
+                    HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty(Constants.PORT))),
+                            0);
 
-            httpServer.stop(0);
+            httpServer.createContext(properties.getProperty(Constants.REDIRECT_PATH), httpExchange -> {
+                var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
 
-            latch.countDown();
-        });
+                if (code == null) {
+                    return;
+                }
 
-        httpServer.setExecutor(null);
-        httpServer.start();
+                retrievedCode = code;
 
-        latch.await();
+                var response = "<p>You can close this page</p>";
+                httpExchange.sendResponseHeaders(200, response.length());
 
-        var OAuthRepository = new OAuthRepository();
-        var OAuthResponse = OAuthRepository.getResponse(retrievedCode);
+                OutputStream outputStream = httpExchange.getResponseBody();
+                outputStream.write(response.getBytes());
+                outputStream.close();
 
-        var body = OAuthResponse.body();
+                httpServer.stop(0);
 
-        if (body == null) {
-            throw new IllegalStateException("Request body is null");
-        }
+                latch.countDown();
+            });
 
-        var token = body.accessToken();
+            httpServer.setExecutor(null);
+            httpServer.start();
 
-        if (token == null) {
-            throw new IllegalStateException("Access token is null");
+            latch.await();
+
+            var OAuthRepository = new OAuthRepository();
+            var OAuthResponse = OAuthRepository.getResponse(retrievedCode);
+
+            var body = OAuthResponse.body();
+
+            if (body == null) {
+                throw new IllegalStateException("Request body is null");
+            }
+
+            var temp =
+                    new AccessToken(body.accessToken(), LocalDateTime.now().plusSeconds(body.expiresIn()).toString());
+            accessToken = temp;
+
+            try (FileOutputStream fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILE);
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+                out.writeObject(temp);
+            } catch (IOException ioException) {
+                throw new RuntimeException(ioException);
+            }
+
+            var token = body.accessToken();
+
+            if (token == null) {
+                throw new IllegalStateException("Access token is null");
+            }
         }
 
         var calendarRepository = new CalendarRepository();
 
-        var calendarResponse = calendarRepository.getEvents("Bearer " + token);
+        var calendarResponse = calendarRepository.getEvents("Bearer " + accessToken.accessToken());
         var eventResponse = calendarResponse.body();
 
         if (eventResponse == null) {

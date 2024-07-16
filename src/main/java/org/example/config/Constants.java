@@ -11,4 +11,5 @@ public final class Constants {
     public static final String REDIRECT_URI = "redirectURI";
     public static final String REDIRECT_PATH = "redirectPath";
     public static final String PORT = "port";
+    public static final String ACCESS_TOKEN_FILE = "AccessToken.ser";
 }
