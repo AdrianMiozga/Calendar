@@ -136,7 +136,13 @@ public class OAuthRepository {
 
             authorizationCode = code;
 
-            var response = "<p>You can close this page</p>";
+            var response = """
+                    <div style="margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;">
+                        <div style="text-align: center; font-size: 32px;">
+                            <p>You can close this tab now</p>
+                        </div>
+                    </div>""";
+
             httpExchange.sendResponseHeaders(200, response.length());
 
             OutputStream outputStream = httpExchange.getResponseBody();
