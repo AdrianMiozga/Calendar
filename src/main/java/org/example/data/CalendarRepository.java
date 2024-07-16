@@ -13,8 +13,7 @@ public class CalendarRepository {
 
     public static final String BASE_URL = "https://www.googleapis.com/calendar/v3/";
 
-    private final CalendarService calendarService = new Retrofit.Builder()
-            .baseUrl(BASE_URL)
+    private final CalendarService calendarService = new Retrofit.Builder().baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
             .create(CalendarService.class);

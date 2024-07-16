@@ -2,7 +2,9 @@ package org.example;
 
 import com.sun.net.httpserver.HttpServer;
 import org.example.config.Constants;
-import org.example.data.*;
+import org.example.data.AccessToken;
+import org.example.data.CalendarRepository;
+import org.example.data.OAuthRepository;
 import org.example.util.Util;
 
 import java.awt.*;
@@ -21,9 +23,9 @@ import java.util.concurrent.CountDownLatch;
 
 public class Main {
 
+    private static final CountDownLatch latch = new CountDownLatch(1);
     private static HttpServer httpServer;
     private static String retrievedCode;
-    private static final CountDownLatch latch = new CountDownLatch(1);
 
     public static void main(String[] args) throws Exception {
         AccessToken accessToken = null;
@@ -33,7 +35,7 @@ public class Main {
                     ObjectInputStream in = new ObjectInputStream(fileIn)) {
                 accessToken = (AccessToken) in.readObject();
             } catch (IOException | ClassNotFoundException exception) {
-                exception.printStackTrace();
+                throw new RuntimeException(exception);
             }
         }
 
@@ -42,8 +44,8 @@ public class Main {
 
             try {
                 properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
             }
 
             var scope =
@@ -87,26 +89,24 @@ public class Main {
             latch.await();
 
             var OAuthRepository = new OAuthRepository();
-            var OAuthResponse = OAuthRepository.getResponse(retrievedCode);
+            var OAuthResponse = OAuthRepository.getResponse(retrievedCode).body();
 
-            var body = OAuthResponse.body();
-
-            if (body == null) {
+            if (OAuthResponse == null) {
                 throw new IllegalStateException("Request body is null");
             }
 
-            var temp =
-                    new AccessToken(body.accessToken(), LocalDateTime.now().plusSeconds(body.expiresIn()).toString());
+            var temp = new AccessToken(OAuthResponse.accessToken(),
+                    LocalDateTime.now().plusSeconds(OAuthResponse.expiresIn()).toString());
             accessToken = temp;
 
             try (FileOutputStream fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILE);
                     ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
                 out.writeObject(temp);
-            } catch (IOException ioException) {
-                throw new RuntimeException(ioException);
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
             }
 
-            var token = body.accessToken();
+            var token = OAuthResponse.accessToken();
 
             if (token == null) {
                 throw new IllegalStateException("Access token is null");
@@ -114,9 +114,7 @@ public class Main {
         }
 
         var calendarRepository = new CalendarRepository();
-
-        var calendarResponse = calendarRepository.getEvents("Bearer " + accessToken.accessToken());
-        var eventResponse = calendarResponse.body();
+        var eventResponse = calendarRepository.getEvents("Bearer " + accessToken.accessToken()).body();
 
         if (eventResponse == null) {
             throw new IllegalStateException("eventResponse is null");

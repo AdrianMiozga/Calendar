@@ -7,6 +7,7 @@ import retrofit2.http.Header;
 
 
 public interface CalendarService {
+
     @GET("calendars/primary/events")
     Call<EventResponse> getEvents(@Header("Authorization") String authorization);
 }

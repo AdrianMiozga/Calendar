@@ -26,8 +26,8 @@ public class OAuthRepository {
 
         try {
             properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
 
         Call<OAuthResponse> OAuthResponse =
@@ -37,8 +37,8 @@ public class OAuthRepository {
 
         try {
             return OAuthResponse.execute();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
         }
     }
 }
