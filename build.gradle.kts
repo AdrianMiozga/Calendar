@@ -22,3 +22,9 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofit")
     implementation("com.squareup.retrofit2:converter-gson:$retrofit")
 }
+
+tasks.clean {
+    doLast {
+        File("AccessToken.ser").delete()
+    }
+}
