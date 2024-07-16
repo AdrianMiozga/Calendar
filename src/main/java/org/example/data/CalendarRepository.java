@@ -19,10 +19,10 @@ public class CalendarRepository {
             .create(CalendarService.class);
 
     public Response<EventResponse> getEventsFromPrimaryCalendar(String accessToken) {
-        Call<EventResponse> calendarList = calendarService.getEvents("Bearer " + accessToken);
+        Call<EventResponse> call = calendarService.getEvents("Bearer " + accessToken);
 
         try {
-            return calendarList.execute();
+            return call.execute();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }

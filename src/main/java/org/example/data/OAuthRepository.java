@@ -30,13 +30,13 @@ public class OAuthRepository {
             throw new RuntimeException(exception);
         }
 
-        Call<OAuthResponse> OAuthResponse =
+        Call<OAuthResponse> call =
                 OAuthRepository.getAccessToken(authorizationCode, properties.getProperty(Constants.CLIENT_ID),
                         properties.getProperty(Constants.CLIENT_SECRET), properties.getProperty(Constants.REDIRECT_URI),
                         "authorization_code");
 
         try {
-            return OAuthResponse.execute();
+            return call.execute();
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
