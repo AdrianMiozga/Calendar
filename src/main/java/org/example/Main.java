@@ -48,11 +48,12 @@ public class Main {
                 throw new RuntimeException(exception);
             }
 
-            var scopes =
-                    "https://www.googleapis.com/auth/calendar.readonly+https://www.googleapis.com/auth/calendar.events.readonly";
+            var scopes = new String[] { "https://www.googleapis.com/auth/calendar.readonly",
+                    "https://www.googleapis.com/auth/calendar.events.readonly" };
+
             var uri = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty(
                     Constants.CLIENT_ID) + "&redirect_uri=" + properties.getProperty(Constants.REDIRECT_URI)
-                    + "&response_type=code&scope=" + scopes;
+                    + "&response_type=code&scope=" + String.join("+", scopes);
 
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI(uri));
