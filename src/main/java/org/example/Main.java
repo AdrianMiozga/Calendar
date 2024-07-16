@@ -1,7 +1,5 @@
 package org.example;
 
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import org.example.config.Constants;
 import org.example.data.*;
@@ -21,7 +19,6 @@ import java.util.Properties;
 
 public class Main {
 
-    // TODO: Use callback
     private static HttpServer httpServer;
     private static String retrievedCode;
 
@@ -45,8 +42,32 @@ public class Main {
             Desktop.getDesktop().browse(new URI(uri));
         }
 
-        httpServer = HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty(Constants.PORT))), 0);
-        httpServer.createContext(properties.getProperty(Constants.REDIRECT_PATH), new MyHandler());
+        httpServer =
+                HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty(Constants.PORT))), 0);
+
+        httpServer.createContext(properties.getProperty(Constants.REDIRECT_PATH), httpExchange -> {
+            var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
+
+            if (code == null) {
+                return;
+            }
+
+            retrievedCode = code;
+
+            var response = "<p>You can close this page</p>";
+            httpExchange.sendResponseHeaders(200, response.length());
+
+            OutputStream outputStream = httpExchange.getResponseBody();
+            outputStream.write(response.getBytes());
+            outputStream.close();
+
+            httpServer.stop(0);
+
+            synchronized (Main.class) {
+                Main.class.notify();
+            }
+        });
+
         httpServer.setExecutor(null);
         httpServer.start();
 
@@ -97,33 +118,6 @@ public class Main {
 
             var formattedDuration = String.format("%dh %dm", hours, minutes);
             System.out.println(pair.getKey() + ": " + formattedDuration);
-        }
-    }
-
-    static class MyHandler implements HttpHandler {
-
-        @Override
-        public void handle(HttpExchange httpExchange) throws IOException {
-            var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
-
-            if (code == null) {
-                return;
-            }
-
-            retrievedCode = code;
-
-            var response = "<p>You can close this page</p>";
-            httpExchange.sendResponseHeaders(200, response.length());
-
-            OutputStream outputStream = httpExchange.getResponseBody();
-            outputStream.write(response.getBytes());
-            outputStream.close();
-
-            httpServer.stop(0);
-
-            synchronized (Main.class) {
-                Main.class.notify();
-            }
         }
     }
 }
