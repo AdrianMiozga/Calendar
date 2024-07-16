@@ -7,9 +7,10 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
+
+import static org.example.util.Util.getAppProperties;
 
 
 public class OAuthRepository {
@@ -47,17 +48,5 @@ public class OAuthRepository {
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
-    }
-
-    private static Properties getAppProperties() {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-
-        return properties;
     }
 }

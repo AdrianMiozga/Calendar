@@ -1,7 +1,12 @@
 package org.example.util;
 
+import org.example.config.Constants;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 
 public class Util {
@@ -24,5 +29,17 @@ public class Util {
         }
 
         return result;
+    }
+
+    public static Properties getAppProperties() {
+        Properties properties = new Properties();
+
+        try {
+            properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
+        return properties;
     }
 }

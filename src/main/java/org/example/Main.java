@@ -17,8 +17,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
-import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
+
+import static org.example.util.Util.getAppProperties;
 
 
 public class Main {
@@ -40,13 +41,7 @@ public class Main {
         }
 
         if (accessToken == null) {
-            var properties = new Properties();
-
-            try {
-                properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
-            } catch (IOException exception) {
-                throw new RuntimeException(exception);
-            }
+            var properties = getAppProperties();
 
             var scopes = new String[] { "https://www.googleapis.com/auth/calendar.readonly",
                     "https://www.googleapis.com/auth/calendar.events.readonly" };
@@ -106,7 +101,7 @@ public class Main {
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
-        } else if (LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now())) {
+        } else if (isTokenExpired(accessToken)) {
             var OAuthRepository = new OAuthRepository();
             var refreshTokenResponse = OAuthRepository.getRefreshToken(accessToken.refreshToken()).body();
 
@@ -160,5 +155,9 @@ public class Main {
             var formattedDuration = String.format("%dh %dm", hours, minutes);
             System.out.println(pair.getKey() + ": " + formattedDuration);
         }
+    }
+
+    private static boolean isTokenExpired(AccessToken accessToken) {
+        return LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now());
     }
 }
