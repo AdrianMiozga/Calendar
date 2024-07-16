@@ -76,7 +76,13 @@ public class Main {
         var OAuthRepository = new OAuthRepository();
         var OAuthResponse = OAuthRepository.getResponse(retrievedCode);
 
-        var token = OAuthResponse.body().accessToken();
+        var body = OAuthResponse.body();
+
+        if (body == null) {
+            throw new IllegalStateException("Request body is null");
+        }
+
+        var token = body.accessToken();
 
         if (token == null) {
             throw new IllegalStateException("Access token is null");
