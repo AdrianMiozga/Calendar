@@ -155,6 +155,8 @@ public class Main {
             var formattedDuration = String.format("%dh %dm", hours, minutes);
             System.out.println(pair.getKey() + ": " + formattedDuration);
         }
+
+        System.exit(0);
     }
 
     private static boolean isTokenExpired(AccessToken accessToken) {
