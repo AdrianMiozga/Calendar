@@ -18,8 +18,8 @@ public class CalendarRepository {
             .build()
             .create(CalendarService.class);
 
-    public Response<EventResponse> getEvents(String token) {
-        Call<EventResponse> calendarList = calendarService.getEvents(token);
+    public Response<EventResponse> getEventsFromPrimaryCalendar(String accessToken) {
+        Call<EventResponse> calendarList = calendarService.getEvents("Bearer " + accessToken);
 
         try {
             return calendarList.execute();

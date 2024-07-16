@@ -114,7 +114,7 @@ public class Main {
         }
 
         var calendarRepository = new CalendarRepository();
-        var eventResponse = calendarRepository.getEvents("Bearer " + accessToken.accessToken()).body();
+        var eventResponse = calendarRepository.getEventsFromPrimaryCalendar(accessToken.accessToken()).body();
 
         if (eventResponse == null) {
             throw new IllegalStateException("eventResponse is null");
