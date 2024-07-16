@@ -1,4 +1,4 @@
-package org.example.data;
+package org.example.data.calendar;
 
 import org.example.api.CalendarService;
 import retrofit2.Call;

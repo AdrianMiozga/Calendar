@@ -1,6 +1,6 @@
 package org.example.api;
 
-import org.example.data.EventResponse;
+import org.example.data.calendar.EventResponse;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;

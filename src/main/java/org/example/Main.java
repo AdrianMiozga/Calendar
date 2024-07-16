@@ -2,9 +2,9 @@ package org.example;
 
 import com.sun.net.httpserver.HttpServer;
 import org.example.config.Constants;
-import org.example.data.AccessToken;
-import org.example.data.CalendarRepository;
-import org.example.data.OAuthRepository;
+import org.example.data.calendar.CalendarRepository;
+import org.example.data.oauth2.AccessToken;
+import org.example.data.oauth2.OAuthRepository;
 import org.example.util.Util;
 
 import java.awt.*;
@@ -39,7 +39,7 @@ public class Main {
             }
         }
 
-        if (accessToken == null || LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now())) {
+        if (accessToken == null) {
             var properties = new Properties();
 
             try {
@@ -53,7 +53,7 @@ public class Main {
 
             var uri = "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty(
                     Constants.CLIENT_ID) + "&redirect_uri=" + properties.getProperty(Constants.REDIRECT_URI)
-                    + "&response_type=code&scope=" + String.join("+", scopes);
+                    + "&response_type=code&scope=" + String.join("+", scopes) + "&access_type=offline";
 
             if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
                 Desktop.getDesktop().browse(new URI(uri));
@@ -96,7 +96,7 @@ public class Main {
                 throw new IllegalStateException("Request body is null");
             }
 
-            var temp = new AccessToken(OAuthResponse.accessToken(),
+            var temp = new AccessToken(OAuthResponse.accessToken(), OAuthResponse.refreshToken(),
                     LocalDateTime.now().plusSeconds(OAuthResponse.expiresIn()).toString());
             accessToken = temp;
 
@@ -106,11 +106,24 @@ public class Main {
             } catch (IOException exception) {
                 throw new RuntimeException(exception);
             }
+        } else if (LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now())) {
+            var OAuthRepository = new OAuthRepository();
+            var refreshTokenResponse = OAuthRepository.getRefreshToken(accessToken.refreshToken()).body();
 
-            var token = OAuthResponse.accessToken();
+            if (refreshTokenResponse == null) {
+                throw new IllegalStateException("Request body is null");
+            }
 
-            if (token == null) {
-                throw new IllegalStateException("Access token is null");
+            var refreshToken = accessToken.refreshToken();
+
+            var updatedAccessToken = new AccessToken(refreshTokenResponse.accessToken(), refreshToken,
+                    LocalDateTime.now().plusSeconds(refreshTokenResponse.expiresIn()).toString());
+
+            try (FileOutputStream fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILE);
+                    ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+                out.writeObject(updatedAccessToken);
+            } catch (IOException exception) {
+                throw new RuntimeException(exception);
             }
         }
 
