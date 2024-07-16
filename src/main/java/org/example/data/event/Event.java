@@ -1,4 +1,4 @@
-package org.example.data.calendar;
+package org.example.data.event;
 
 import com.google.gson.annotations.SerializedName;
 

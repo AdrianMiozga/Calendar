@@ -32,7 +32,7 @@ public class Util {
     }
 
     public static Properties getAppProperties() {
-        Properties properties = new Properties();
+        var properties = new Properties();
 
         try {
             properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
