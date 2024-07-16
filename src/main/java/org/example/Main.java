@@ -15,12 +15,14 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.Properties;
+import java.util.concurrent.CountDownLatch;
 
 
 public class Main {
 
     private static HttpServer httpServer;
     private static String retrievedCode;
+    private static final CountDownLatch latch = new CountDownLatch(1);
 
     public static void main(String[] args) throws Exception {
         var properties = new Properties();
@@ -63,17 +65,13 @@ public class Main {
 
             httpServer.stop(0);
 
-            synchronized (Main.class) {
-                Main.class.notify();
-            }
+            latch.countDown();
         });
 
         httpServer.setExecutor(null);
         httpServer.start();
 
-        synchronized (Main.class) {
-            Main.class.wait();
-        }
+        latch.await();
 
         var OAuthRepository = new OAuthRepository();
         var OAuthResponse = OAuthRepository.getResponse(retrievedCode);
