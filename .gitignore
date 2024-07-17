@@ -3,7 +3,7 @@ build/
 .idea/
 !.idea/google-java-format.xml
 
-application.properties
+src/main/resources/application.properties
 TODO.md
 AccessToken.ser
 Test.java

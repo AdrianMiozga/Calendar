@@ -2,7 +2,6 @@ package org.example.util;
 
 import org.example.config.Constants;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -33,8 +32,10 @@ public class Util {
     public static Properties getAppProperties() {
         var properties = new Properties();
 
+        ClassLoader classLoader = Util.class.getClassLoader();
+
         try {
-            properties.load(new FileInputStream(Constants.PROPERTIES_FILE));
+            properties.load(classLoader.getResourceAsStream(Constants.PROPERTIES_FILE));
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
