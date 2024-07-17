@@ -1,8 +1,13 @@
 package org.example.data.oauth2;
 
+import static org.example.util.Util.getAppProperties;
+import static org.example.util.Util.queryToMap;
+
 import com.sun.net.httpserver.HttpServer;
+
 import org.example.api.OAuthService;
 import org.example.config.Constants;
+
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -17,18 +22,16 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 
-import static org.example.util.Util.getAppProperties;
-import static org.example.util.Util.queryToMap;
-
-
 public class OAuthRepository {
 
     public static final String BASE_URL = "https://oauth2.googleapis.com/";
 
-    private final OAuthService OAuthService = new Retrofit.Builder().baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(OAuthService.class);
+    private final OAuthService OAuthService =
+            new Retrofit.Builder()
+                    .baseUrl(BASE_URL)
+                    .addConverterFactory(GsonConverterFactory.create())
+                    .build()
+                    .create(OAuthService.class);
 
     private final CountDownLatch latch = new CountDownLatch(1);
     private HttpServer httpServer;
@@ -71,9 +74,12 @@ public class OAuthRepository {
             var properties = getAppProperties();
 
             Call<AccessTokenResponse> call =
-                    OAuthService.getAccessToken(authorizationCode, properties.getProperty(Constants.CLIENT_ID),
+                    OAuthService.getAccessToken(
+                            authorizationCode,
+                            properties.getProperty(Constants.CLIENT_ID),
                             properties.getProperty(Constants.CLIENT_SECRET),
-                            properties.getProperty(Constants.REDIRECT_URI), "authorization_code");
+                            properties.getProperty(Constants.REDIRECT_URI),
+                            "authorization_code");
 
             AccessTokenResponse accessTokenResponse;
 
@@ -87,8 +93,13 @@ public class OAuthRepository {
                 throw new IllegalStateException("Access token is null");
             }
 
-            var newAccessToken = new AccessToken(accessTokenResponse.accessToken(), accessTokenResponse.refreshToken(),
-                    LocalDateTime.now().plusSeconds(accessTokenResponse.expiresIn()).toString());
+            var newAccessToken =
+                    new AccessToken(
+                            accessTokenResponse.accessToken(),
+                            accessTokenResponse.refreshToken(),
+                            LocalDateTime.now()
+                                    .plusSeconds(accessTokenResponse.expiresIn())
+                                    .toString());
 
             writeSerializedToken(newAccessToken);
 
@@ -103,15 +114,23 @@ public class OAuthRepository {
     private String getAuthorizationCode() {
         var properties = getAppProperties();
 
-        var scopes = new String[] { "https://www.googleapis.com/auth/calendar.readonly",
-                "https://www.googleapis.com/auth/calendar.events.readonly" };
+        var scopes =
+                new String[] {
+                    "https://www.googleapis.com/auth/calendar.readonly",
+                    "https://www.googleapis.com/auth/calendar.events.readonly"
+                };
 
         var uri =
-                "https://accounts.google.com/o/oauth2/v2/auth?client_id=" + properties.getProperty(Constants.CLIENT_ID)
-                        + "&redirect_uri=" + properties.getProperty(Constants.REDIRECT_URI)
-                        + "&response_type=code&scope=" + String.join("+", scopes) + "&access_type=offline";
+                "https://accounts.google.com/o/oauth2/v2/auth?client_id="
+                        + properties.getProperty(Constants.CLIENT_ID)
+                        + "&redirect_uri="
+                        + properties.getProperty(Constants.REDIRECT_URI)
+                        + "&response_type=code&scope="
+                        + String.join("+", scopes)
+                        + "&access_type=offline";
 
-        if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
+        if (Desktop.isDesktopSupported()
+                && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
                 Desktop.getDesktop().browse(new URI(uri));
             } catch (URISyntaxException | IOException exception) {
@@ -121,38 +140,43 @@ public class OAuthRepository {
 
         try {
             httpServer =
-                    HttpServer.create(new InetSocketAddress(Integer.parseInt(properties.getProperty(Constants.PORT))),
+                    HttpServer.create(
+                            new InetSocketAddress(
+                                    Integer.parseInt(properties.getProperty(Constants.PORT))),
                             0);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
 
-        httpServer.createContext(properties.getProperty(Constants.REDIRECT_PATH), httpExchange -> {
-            var code = queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
+        httpServer.createContext(
+                properties.getProperty(Constants.REDIRECT_PATH),
+                httpExchange -> {
+                    var code = queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
 
-            if (code == null) {
-                throw new IllegalStateException("Code parameter not found");
-            }
+                    if (code == null) {
+                        throw new IllegalStateException("Code parameter not found");
+                    }
 
-            authorizationCode = code;
+                    authorizationCode = code;
 
-            var response = """
+                    var response =
+                            """
                     <div style="margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;">
                         <div style="text-align: center; font-size: 32px;">
                             <p>You can close this tab now</p>
                         </div>
                     </div>""";
 
-            httpExchange.sendResponseHeaders(200, response.length());
+                    httpExchange.sendResponseHeaders(200, response.length());
 
-            OutputStream outputStream = httpExchange.getResponseBody();
-            outputStream.write(response.getBytes());
-            outputStream.close();
+                    OutputStream outputStream = httpExchange.getResponseBody();
+                    outputStream.write(response.getBytes());
+                    outputStream.close();
 
-            httpServer.stop(0);
+                    httpServer.stop(0);
 
-            latch.countDown();
-        });
+                    latch.countDown();
+                });
 
         httpServer.setExecutor(null);
         httpServer.start();
@@ -175,8 +199,12 @@ public class OAuthRepository {
 
         var properties = getAppProperties();
 
-        Call<RefreshTokenResponse> call = OAuthService.getRefreshToken(properties.getProperty(Constants.CLIENT_ID),
-                properties.getProperty(Constants.CLIENT_SECRET), "refresh_token", accessToken.refreshToken());
+        Call<RefreshTokenResponse> call =
+                OAuthService.getRefreshToken(
+                        properties.getProperty(Constants.CLIENT_ID),
+                        properties.getProperty(Constants.CLIENT_SECRET),
+                        "refresh_token",
+                        accessToken.refreshToken());
 
         try {
             RefreshTokenResponse refreshToken = call.execute().body();
@@ -185,8 +213,11 @@ public class OAuthRepository {
                 throw new IllegalStateException("Refresh token is null");
             }
 
-            var updatedAccessToken = new AccessToken(refreshToken.accessToken(), accessToken.refreshToken(),
-                    LocalDateTime.now().plusSeconds(refreshToken.expiresIn()).toString());
+            var updatedAccessToken =
+                    new AccessToken(
+                            refreshToken.accessToken(),
+                            accessToken.refreshToken(),
+                            LocalDateTime.now().plusSeconds(refreshToken.expiresIn()).toString());
 
             writeSerializedToken(updatedAccessToken);
 

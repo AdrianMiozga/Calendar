@@ -6,7 +6,6 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.HashMap;
 
-
 public class App {
 
     private static final EventRepository eventRepository = new EventRepository();

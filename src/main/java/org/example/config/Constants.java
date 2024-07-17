@@ -13,6 +13,5 @@ public final class Constants {
     // Access Token
     public static final String ACCESS_TOKEN_FILE = "AccessToken.ser";
 
-    private Constants() {
-    }
+    private Constants() {}
 }
