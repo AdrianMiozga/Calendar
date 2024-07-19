@@ -8,6 +8,9 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.time.YearMonth;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class EventRepository {
@@ -22,9 +25,26 @@ public class EventRepository {
                     .build()
                     .create(EventService.class);
 
-    public List<Event> getEventsFromPrimaryCalendar() {
+    public List<Event> getEventsFromPrimaryCalendar(YearMonth yearMonth) {
+        String startOffsetDateTime =
+                yearMonth
+                        .atDay(1)
+                        .atStartOfDay()
+                        .atOffset(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_DATE_TIME);
+
+        String endOffsetDateTime =
+                yearMonth
+                        .atEndOfMonth()
+                        .atStartOfDay()
+                        .atOffset(ZoneOffset.UTC)
+                        .format(DateTimeFormatter.ISO_DATE_TIME);
+
         Call<EventResponse> call =
-                eventService.getEvents("Bearer " + OAuthRepository.getAccessToken());
+                eventService.getEvents(
+                        "Bearer " + OAuthRepository.getAccessToken(),
+                        startOffsetDateTime,
+                        endOffsetDateTime);
 
         try {
             var eventResponse = call.execute().body();
