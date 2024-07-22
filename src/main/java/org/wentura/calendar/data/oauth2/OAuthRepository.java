@@ -1,13 +1,11 @@
-package org.example.data.oauth2;
-
-import static org.example.util.Util.getAppProperties;
-import static org.example.util.Util.queryToMap;
+package org.wentura.calendar.data.oauth2;
 
 import com.sun.net.httpserver.HttpServer;
 
-import org.example.api.OAuthService;
-import org.example.config.Constants;
+import org.wentura.calendar.api.OAuthService;
+import org.wentura.calendar.config.Constants;
 
+import org.wentura.calendar.util.Util;
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -71,7 +69,7 @@ public class OAuthRepository {
         if (accessToken == null) {
             var authorizationCode = getAuthorizationCode();
 
-            var properties = getAppProperties();
+            var properties = Util.getAppProperties();
 
             Call<AccessTokenResponse> call =
                     OAuthService.getAccessToken(
@@ -112,7 +110,7 @@ public class OAuthRepository {
     }
 
     private String getAuthorizationCode() {
-        var properties = getAppProperties();
+        var properties = Util.getAppProperties();
 
         var scopes =
                 new String[] {
@@ -151,7 +149,7 @@ public class OAuthRepository {
         httpServer.createContext(
                 properties.getProperty(Constants.REDIRECT_PATH),
                 httpExchange -> {
-                    var code = queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
+                    var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
 
                     if (code == null) {
                         throw new IllegalStateException("Code parameter not found");
@@ -197,7 +195,7 @@ public class OAuthRepository {
             throw new IllegalStateException("Access token is null");
         }
 
-        var properties = getAppProperties();
+        var properties = Util.getAppProperties();
 
         Call<RefreshTokenResponse> call =
                 OAuthService.getRefreshToken(

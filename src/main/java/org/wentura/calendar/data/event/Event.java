@@ -1,4 +1,4 @@
-package org.example.data.event;
+package org.wentura.calendar.data.event;
 
 import com.google.gson.annotations.SerializedName;
 

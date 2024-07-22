@@ -1,4 +1,4 @@
-package org.example;
+package org.wentura.calendar;
 
 public class Main {
 

@@ -1,7 +1,7 @@
-package org.example.api;
+package org.wentura.calendar.api;
 
-import org.example.data.oauth2.AccessTokenResponse;
-import org.example.data.oauth2.RefreshTokenResponse;
+import org.wentura.calendar.data.oauth2.AccessTokenResponse;
+import org.wentura.calendar.data.oauth2.RefreshTokenResponse;
 
 import retrofit2.Call;
 import retrofit2.http.POST;

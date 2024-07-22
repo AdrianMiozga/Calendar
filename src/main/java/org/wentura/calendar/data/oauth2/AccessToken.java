@@ -1,4 +1,4 @@
-package org.example.data.oauth2;
+package org.wentura.calendar.data.oauth2;
 
 import java.io.Serializable;
 

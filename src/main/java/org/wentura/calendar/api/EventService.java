@@ -1,6 +1,6 @@
-package org.example.api;
+package org.wentura.calendar.api;
 
-import org.example.data.event.EventResponse;
+import org.wentura.calendar.data.event.EventResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

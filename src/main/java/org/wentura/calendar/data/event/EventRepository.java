@@ -1,7 +1,7 @@
-package org.example.data.event;
+package org.wentura.calendar.data.event;
 
-import org.example.api.EventService;
-import org.example.data.oauth2.OAuthRepository;
+import org.wentura.calendar.api.EventService;
+import org.wentura.calendar.data.oauth2.OAuthRepository;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -17,7 +17,7 @@ public class EventRepository {
 
     public static final String BASE_URL = "https://www.googleapis.com/calendar/v3/";
 
-    private static final OAuthRepository OAuthRepository = new OAuthRepository();
+    private static final org.wentura.calendar.data.oauth2.OAuthRepository OAuthRepository = new OAuthRepository();
     private final EventService eventService =
             new Retrofit.Builder()
                     .baseUrl(BASE_URL)

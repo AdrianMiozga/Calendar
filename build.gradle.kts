@@ -3,7 +3,7 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-group = "org.example"
+group = "org.wentura.calendar"
 version = "0.1.0"
 
 repositories {
@@ -13,7 +13,7 @@ repositories {
 tasks.jar {
     manifest {
         attributes(
-            "Main-Class" to "org.example.Main"
+            "Main-Class" to "org.wentura.calendar.Main"
         )
     }
 }

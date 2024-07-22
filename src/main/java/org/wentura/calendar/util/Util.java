@@ -1,6 +1,6 @@
-package org.example.util;
+package org.wentura.calendar.util;
 
-import org.example.config.Constants;
+import org.wentura.calendar.config.Constants;
 
 import java.io.IOException;
 import java.util.HashMap;

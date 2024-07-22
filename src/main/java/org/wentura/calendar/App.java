@@ -1,6 +1,6 @@
-package org.example;
+package org.wentura.calendar;
 
-import org.example.data.event.EventRepository;
+import org.wentura.calendar.data.event.EventRepository;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;

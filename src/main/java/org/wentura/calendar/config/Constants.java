@@ -1,4 +1,4 @@
-package org.example.config;
+package org.wentura.calendar.config;
 
 public final class Constants {
 
