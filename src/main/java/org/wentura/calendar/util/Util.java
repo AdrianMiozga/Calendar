@@ -10,7 +10,7 @@ import java.util.Properties;
 public class Util {
 
     public static Map<String, String> queryToMap(String query) {
-        if (query == null) {
+        if (query == null || query.isBlank()) {
             return null;
         }
 

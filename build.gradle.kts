@@ -22,6 +22,13 @@ dependencies {
     val retrofit = "2.11.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofit")
     implementation("com.squareup.retrofit2:converter-gson:$retrofit")
+
+    testImplementation(platform("org.junit:junit-bom:5.11.0-M2"))
+    testImplementation("org.junit.jupiter:junit-jupiter-engine")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.clean {
