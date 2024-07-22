@@ -35,7 +35,8 @@ public class EventRepository {
 
         String endOffsetDateTime =
                 yearMonth
-                        .atEndOfMonth()
+                        .plusMonths(1)
+                        .atDay(1)
                         .atStartOfDay()
                         .atOffset(ZoneOffset.UTC)
                         .format(DateTimeFormatter.ISO_DATE_TIME);
