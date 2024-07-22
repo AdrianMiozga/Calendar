@@ -1,6 +1,6 @@
 ## Technology Stack
 
-- Java
+- Java 16
 - [Retrofit](https://square.github.io/retrofit/)
 - [Gson](https://github.com/google/gson)
 - `com.sun.net.httpserver`
