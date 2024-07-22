@@ -19,6 +19,7 @@ public class EventRepository {
 
     private static final org.wentura.calendar.data.oauth2.OAuthRepository OAuthRepository =
             new OAuthRepository();
+
     private final EventService eventService =
             new Retrofit.Builder()
                     .baseUrl(BASE_URL)
