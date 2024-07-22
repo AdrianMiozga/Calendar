@@ -33,6 +33,10 @@ public class App {
         HashMap<String, Long> eventToTime = new HashMap<>();
 
         for (var event : events) {
+            if (event.start().offsetDateTime() == null || event.end().offsetDateTime() == null) {
+                continue;
+            }
+
             var start = OffsetDateTime.parse(event.start().offsetDateTime());
             var end = OffsetDateTime.parse(event.end().offsetDateTime());
 
