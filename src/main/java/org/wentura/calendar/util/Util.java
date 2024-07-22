@@ -42,4 +42,11 @@ public class Util {
 
         return properties;
     }
+
+    public static String getFormattedDuration(Long totalSeconds) {
+        var hours = totalSeconds / 3600;
+        var minutes = (totalSeconds % 3600) / 60;
+
+        return String.format("%dh %dm", hours, minutes);
+    }
 }

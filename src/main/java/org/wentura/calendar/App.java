@@ -10,6 +10,8 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static org.wentura.calendar.util.Util.*;
+
 public class App {
 
     private static final EventRepository eventRepository = new EventRepository();
@@ -63,11 +65,8 @@ public class App {
             for (var pair : eventToTime.entrySet()) {
                 var totalSeconds = pair.getValue();
 
-                var hours = totalSeconds / 3600;
-                var minutes = (totalSeconds % 3600) / 60;
-
-                var formattedDuration = String.format("%dh %dm", hours, minutes);
-                System.out.println("  " + pair.getKey() + ": " + formattedDuration);
+                System.out.println(
+                        "  " + pair.getKey() + ": " + getFormattedDuration(totalSeconds));
             }
         }
 
