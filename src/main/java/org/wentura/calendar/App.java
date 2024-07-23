@@ -24,7 +24,8 @@ public class App {
                 yearMonth = YearMonth.parse(args[0]);
             } catch (DateTimeParseException exception) {
                 System.out.println("Couldn't parse date");
-                throw new RuntimeException(exception);
+                System.exit(1);
+                return;
             }
         } else {
             yearMonth = YearMonth.now();
