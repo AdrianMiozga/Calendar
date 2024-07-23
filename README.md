@@ -1,10 +1,15 @@
 ## Technology Stack
 
 - Java 16
-- [Retrofit](https://square.github.io/retrofit/)
-- [Gson](https://github.com/google/gson)
-- `com.sun.net.httpserver`
-- [Google Calendar API](https://developers.google.com/calendar/api/guides/overview)
-- [Gradle](https://gradle.org/)
+  - [`com.sun.net.httpserver`](https://docs.oracle.com/javase/8/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/package-summary.html) - HTTP server
+- [Retrofit](https://square.github.io/retrofit/) - HTTP client
+- [Gson](https://github.com/google/gson) - serialization/deserialization
+- [Gradle](https://gradle.org/) - build tool
+  - [Shadow](https://github.com/johnrengelman/shadow) - creating a fat `jar`
   - [Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html)
-- [google-java-format](https://github.com/google/google-java-format) with AOSP style
+- [google-java-format](https://github.com/google/google-java-format) with AOSP style - code formatter
+- [JUnit 5](https://junit.org/junit5/) - unit testing
+
+### API
+
+- [Google Calendar API](https://developers.google.com/calendar/api/guides/overview)
