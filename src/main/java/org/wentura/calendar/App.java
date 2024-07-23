@@ -9,14 +9,22 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.wentura.calendar.util.Util.*;
 
 public class App {
 
-    private static final EventRepository eventRepository = new EventRepository();
-
     static void run(String[] args) {
+        var yearMonth = parseArguments(args);
+        var eventToTime = getEventToTimeMap(yearMonth);
+
+        printEvents(yearMonth, eventToTime);
+
+        System.exit(0);
+    }
+
+    private static YearMonth parseArguments(String[] args) {
         YearMonth yearMonth;
 
         if (args.length > 0) {
@@ -25,15 +33,20 @@ public class App {
             } catch (DateTimeParseException exception) {
                 System.out.println("Couldn't parse date");
                 System.exit(1);
-                return;
+                return null;
             }
         } else {
             yearMonth = YearMonth.now();
         }
 
+        return yearMonth;
+    }
+
+    private static Map<String, Long> getEventToTimeMap(YearMonth yearMonth) {
+        var eventRepository = new EventRepository();
         var events = eventRepository.getEventsFromPrimaryCalendar(yearMonth);
 
-        HashMap<String, Long> eventToTime = new HashMap<>();
+        Map<String, Long> eventToTime = new HashMap<>();
 
         for (var event : events) {
             if (event.start().offsetDateTime() == null || event.end().offsetDateTime() == null) {
@@ -54,6 +67,10 @@ public class App {
             }
         }
 
+        return eventToTime;
+    }
+
+    private static void printEvents(YearMonth yearMonth, Map<String, Long> eventToTime) {
         System.out.println(
                 "Showing events from "
                         + yearMonth.format(
@@ -70,7 +87,5 @@ public class App {
                         "  " + pair.getKey() + ": " + getFormattedDuration(totalSeconds));
             }
         }
-
-        System.exit(0);
     }
 }
