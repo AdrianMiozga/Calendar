@@ -44,6 +44,10 @@ public class Util {
     }
 
     public static String getFormattedDuration(Long totalSeconds) {
+        if (totalSeconds < 0) {
+            throw new IllegalArgumentException("Seconds can't be negative");
+        }
+
         var hours = totalSeconds / 3600;
         var minutes = (totalSeconds % 3600) / 60;
 
