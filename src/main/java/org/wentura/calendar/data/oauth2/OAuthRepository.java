@@ -4,14 +4,15 @@ import com.sun.net.httpserver.HttpServer;
 
 import org.wentura.calendar.api.OAuthService;
 import org.wentura.calendar.config.Constants;
-
 import org.wentura.calendar.util.Util;
+
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.awt.*;
 import java.io.*;
+import java.net.BindException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -127,6 +128,17 @@ public class OAuthRepository {
                         + String.join("+", scopes)
                         + "&access_type=offline";
 
+        int port = Integer.parseInt(properties.getProperty(Constants.PORT));
+
+        try {
+            httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+        } catch (BindException exception) {
+            System.out.println("Some process is already listening at port " + port);
+            System.exit(1);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+
         if (Desktop.isDesktopSupported()
                 && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
@@ -134,16 +146,6 @@ public class OAuthRepository {
             } catch (URISyntaxException | IOException exception) {
                 throw new RuntimeException(exception);
             }
-        }
-
-        try {
-            httpServer =
-                    HttpServer.create(
-                            new InetSocketAddress(
-                                    Integer.parseInt(properties.getProperty(Constants.PORT))),
-                            0);
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
         }
 
         httpServer.createContext(
