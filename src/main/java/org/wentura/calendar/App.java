@@ -1,45 +1,27 @@
 package org.wentura.calendar;
 
+import static org.wentura.calendar.util.Util.*;
+
 import org.wentura.calendar.data.event.EventRepository;
+import org.wentura.calendar.util.ArgumentParser;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static org.wentura.calendar.util.Util.*;
-
 public class App {
 
     static void run(String[] args) {
-        var yearMonth = parseArguments(args);
+        var yearMonth = ArgumentParser.parse(args);
         var eventToTime = getEventToTimeMap(yearMonth);
 
         printEvents(yearMonth, eventToTime);
 
         System.exit(0);
-    }
-
-    private static YearMonth parseArguments(String[] args) {
-        YearMonth yearMonth;
-
-        if (args.length > 0) {
-            try {
-                yearMonth = YearMonth.parse(args[0]);
-            } catch (DateTimeParseException exception) {
-                System.out.println("Couldn't parse date");
-                System.exit(1);
-                return null;
-            }
-        } else {
-            yearMonth = YearMonth.now();
-        }
-
-        return yearMonth;
     }
 
     private static Map<String, Long> getEventToTimeMap(YearMonth yearMonth) {
