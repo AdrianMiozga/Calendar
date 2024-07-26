@@ -37,7 +37,7 @@ tasks.test {
 
 tasks.clean {
     doLast {
-        File("AccessToken.ser").delete()
+        File("access-token.ser").delete()
     }
 }
 
