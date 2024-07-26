@@ -43,5 +43,6 @@ tasks.clean {
 
 tasks.withType<DefaultLaunch4jTask> {
     mainClassName.set(mainClass)
+    outfile = project.name.lowercase() + ".exe"
     headerType = "console"
 }
