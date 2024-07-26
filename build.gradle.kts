@@ -1,8 +1,12 @@
+import edu.sc.seis.launch4j.tasks.DefaultLaunch4jTask
+
 plugins {
     id("java")
     id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("edu.sc.seis.launch4j") version "3.0.6"
 }
 
+val mainClass = "org.wentura.calendar.Main"
 group = "org.wentura.calendar"
 version = "0.1.0"
 
@@ -22,7 +26,7 @@ dependencies {
 tasks.jar {
     manifest {
         attributes(
-            "Main-Class" to "org.wentura.calendar.Main"
+            "Main-Class" to mainClass
         )
     }
 }
@@ -35,4 +39,9 @@ tasks.clean {
     doLast {
         File("AccessToken.ser").delete()
     }
+}
+
+tasks.withType<DefaultLaunch4jTask> {
+    mainClassName.set(mainClass)
+    headerType = "console"
 }
