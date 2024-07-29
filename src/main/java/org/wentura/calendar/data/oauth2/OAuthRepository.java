@@ -4,6 +4,8 @@ import com.sun.net.httpserver.HttpServer;
 
 import org.wentura.calendar.api.OAuthService;
 import org.wentura.calendar.config.Constants;
+import org.wentura.calendar.data.config.Config;
+import org.wentura.calendar.data.config.ConfigRepository;
 import org.wentura.calendar.util.Util;
 
 import retrofit2.Call;
@@ -35,6 +37,7 @@ public class OAuthRepository {
     private final CountDownLatch latch = new CountDownLatch(1);
     private HttpServer httpServer;
     private String authorizationCode;
+    private final Config config = ConfigRepository.getAppConfig();
 
     private static boolean isTokenExpired(AccessToken accessToken) {
         return LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now());
@@ -43,8 +46,8 @@ public class OAuthRepository {
     private static AccessToken readSerializedToken() {
         AccessToken accessToken = null;
 
-        if (Files.exists(Paths.get(Constants.ACCESS_TOKEN_FILE))) {
-            try (FileInputStream fileIn = new FileInputStream(Constants.ACCESS_TOKEN_FILE);
+        if (Files.exists(Paths.get(Constants.ACCESS_TOKEN_FILENAME))) {
+            try (FileInputStream fileIn = new FileInputStream(Constants.ACCESS_TOKEN_FILENAME);
                     ObjectInputStream in = new ObjectInputStream(fileIn)) {
                 accessToken = (AccessToken) in.readObject();
             } catch (IOException | ClassNotFoundException exception) {
@@ -56,7 +59,7 @@ public class OAuthRepository {
     }
 
     private static void writeSerializedToken(AccessToken accessToken) {
-        try (FileOutputStream fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILE);
+        try (FileOutputStream fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILENAME);
                 ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
             out.writeObject(accessToken);
         } catch (IOException exception) {
@@ -70,14 +73,12 @@ public class OAuthRepository {
         if (accessToken == null) {
             var authorizationCode = getAuthorizationCode();
 
-            var properties = Util.getAppProperties();
-
             Call<AccessTokenResponse> call =
                     OAuthService.getAccessToken(
                             authorizationCode,
-                            properties.getProperty(Constants.CLIENT_ID),
-                            properties.getProperty(Constants.CLIENT_SECRET),
-                            properties.getProperty(Constants.REDIRECT_URI),
+                            config.clientId(),
+                            config.clientSecret(),
+                            config.redirectURI(),
                             "authorization_code");
 
             AccessTokenResponse accessTokenResponse;
@@ -111,8 +112,6 @@ public class OAuthRepository {
     }
 
     private String getAuthorizationCode() {
-        var properties = Util.getAppProperties();
-
         var scopes =
                 new String[] {
                     "https://www.googleapis.com/auth/calendar.readonly",
@@ -121,14 +120,14 @@ public class OAuthRepository {
 
         var uri =
                 "https://accounts.google.com/o/oauth2/v2/auth?client_id="
-                        + properties.getProperty(Constants.CLIENT_ID)
+                        + config.clientId()
                         + "&redirect_uri="
-                        + properties.getProperty(Constants.REDIRECT_URI)
+                        + config.redirectURI()
                         + "&response_type=code&scope="
                         + String.join("+", scopes)
                         + "&access_type=offline";
 
-        int port = Integer.parseInt(properties.getProperty(Constants.PORT));
+        int port = Integer.parseInt(config.port());
 
         try {
             httpServer = HttpServer.create(new InetSocketAddress(port), 0);
@@ -149,7 +148,7 @@ public class OAuthRepository {
         }
 
         httpServer.createContext(
-                properties.getProperty(Constants.REDIRECT_PATH),
+                config.redirectPath(),
                 httpExchange -> {
                     var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
 
@@ -197,12 +196,10 @@ public class OAuthRepository {
             throw new IllegalStateException("Access token is null");
         }
 
-        var properties = Util.getAppProperties();
-
         Call<RefreshTokenResponse> call =
                 OAuthService.getRefreshToken(
-                        properties.getProperty(Constants.CLIENT_ID),
-                        properties.getProperty(Constants.CLIENT_SECRET),
+                        config.clientId(),
+                        config.clientSecret(),
                         "refresh_token",
                         accessToken.refreshToken());
 

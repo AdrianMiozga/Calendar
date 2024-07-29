@@ -1,11 +1,7 @@
 package org.wentura.calendar.util;
 
-import org.wentura.calendar.config.Constants;
-
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 public class Util {
 
@@ -27,20 +23,6 @@ public class Util {
         }
 
         return result;
-    }
-
-    public static Properties getAppProperties() {
-        var properties = new Properties();
-
-        ClassLoader classLoader = Util.class.getClassLoader();
-
-        try {
-            properties.load(classLoader.getResourceAsStream(Constants.PROPERTIES_FILE));
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
-        }
-
-        return properties;
     }
 
     public static String getFormattedDuration(Long totalSeconds) {
