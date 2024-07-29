@@ -127,12 +127,10 @@ public class OAuthRepository {
                         + String.join("+", scopes)
                         + "&access_type=offline";
 
-        int port = Integer.parseInt(config.port());
-
         try {
-            httpServer = HttpServer.create(new InetSocketAddress(port), 0);
+            httpServer = HttpServer.create(new InetSocketAddress(config.getPort()), 0);
         } catch (BindException exception) {
-            System.out.println("Some process is already listening at port " + port);
+            System.out.println("Some process is already listening at port " + config.getPort());
             System.exit(1);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -148,7 +146,7 @@ public class OAuthRepository {
         }
 
         httpServer.createContext(
-                config.redirectPath(),
+                config.getRedirectPath(),
                 httpExchange -> {
                     var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
 
