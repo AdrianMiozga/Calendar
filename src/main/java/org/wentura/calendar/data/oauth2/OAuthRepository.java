@@ -8,7 +8,6 @@ import org.wentura.calendar.data.config.Config;
 import org.wentura.calendar.data.config.ConfigRepository;
 import org.wentura.calendar.util.Util;
 
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -47,8 +46,8 @@ public class OAuthRepository {
         AccessToken accessToken = null;
 
         if (Files.exists(Paths.get(Constants.ACCESS_TOKEN_FILENAME))) {
-            try (FileInputStream fileIn = new FileInputStream(Constants.ACCESS_TOKEN_FILENAME);
-                    ObjectInputStream in = new ObjectInputStream(fileIn)) {
+            try (var fileIn = new FileInputStream(Constants.ACCESS_TOKEN_FILENAME);
+                    var in = new ObjectInputStream(fileIn)) {
                 accessToken = (AccessToken) in.readObject();
             } catch (IOException | ClassNotFoundException exception) {
                 throw new RuntimeException(exception);
@@ -59,8 +58,8 @@ public class OAuthRepository {
     }
 
     private static void writeSerializedToken(AccessToken accessToken) {
-        try (FileOutputStream fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILENAME);
-                ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+        try (var fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILENAME);
+                var out = new ObjectOutputStream(fileOut)) {
             out.writeObject(accessToken);
         } catch (IOException exception) {
             throw new RuntimeException(exception);
@@ -68,12 +67,12 @@ public class OAuthRepository {
     }
 
     public String getAccessToken() {
-        AccessToken accessToken = readSerializedToken();
+        var accessToken = readSerializedToken();
 
         if (accessToken == null) {
             var authorizationCode = getAuthorizationCode();
 
-            Call<AccessTokenResponse> call =
+            var call =
                     OAuthService.getAccessToken(
                             authorizationCode,
                             config.clientId(),
@@ -188,13 +187,13 @@ public class OAuthRepository {
     }
 
     private String getNewAccessToken() {
-        AccessToken accessToken = readSerializedToken();
+        var accessToken = readSerializedToken();
 
         if (accessToken == null) {
             throw new IllegalStateException("Access token is null");
         }
 
-        Call<RefreshTokenResponse> call =
+        var call =
                 OAuthService.getRefreshToken(
                         config.clientId(),
                         config.clientSecret(),
@@ -202,7 +201,7 @@ public class OAuthRepository {
                         accessToken.refreshToken());
 
         try {
-            RefreshTokenResponse refreshToken = call.execute().body();
+            var refreshToken = call.execute().body();
 
             if (refreshToken == null) {
                 throw new IllegalStateException("Refresh token is null");
