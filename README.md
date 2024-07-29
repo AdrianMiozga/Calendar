@@ -9,7 +9,7 @@
 - [Gson](https://github.com/google/gson) - serialization/deserialization
 - [JUnit 5](https://junit.org/junit5/) - unit testing
 - [Gradle](https://gradle.org/) - build tool
-  - [Shadow](https://github.com/johnrengelman/shadow) - creating a fat `jar`
+  - [Shadow](https://github.com/GradleUp/shadow) - creating a fat `jar`
   - [gradle-launch4j](https://github.com/TheBoegl/gradle-launch4j) - creating `exe`
   - [Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html)
 - [google-java-format](https://github.com/google/google-java-format) with AOSP style - code formatter
