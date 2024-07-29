@@ -41,6 +41,10 @@ tasks.clean {
     }
 }
 
+tasks.shadowJar {
+    archiveFileName = project.name.lowercase() + ".jar"
+}
+
 tasks.withType<DefaultLaunch4jTask> {
     mainClassName.set(mainClass)
     outfile = project.name.lowercase() + ".exe"
