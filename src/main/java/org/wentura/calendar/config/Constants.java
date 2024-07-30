@@ -6,4 +6,6 @@ public final class Constants {
 
     public static final String CONFIG_FILENAME = "config.json";
     public static final String ACCESS_TOKEN_FILENAME = "access-token.ser";
+
+    public static final int MAX_HTTP_RETRIES = 3;
 }

@@ -6,7 +6,7 @@ import org.wentura.calendar.api.OAuthService;
 import org.wentura.calendar.config.Constants;
 import org.wentura.calendar.data.config.Config;
 import org.wentura.calendar.data.config.ConfigRepository;
-import org.wentura.calendar.util.Util;
+import org.wentura.calendar.util.URIUtils;
 
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -61,6 +61,14 @@ public class OAuthRepository {
         try (var fileOut = new FileOutputStream(Constants.ACCESS_TOKEN_FILENAME);
                 var out = new ObjectOutputStream(fileOut)) {
             out.writeObject(accessToken);
+        } catch (IOException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public void deleteSerializedToken() {
+        try {
+            Files.deleteIfExists(Paths.get(Constants.ACCESS_TOKEN_FILENAME));
         } catch (IOException exception) {
             throw new RuntimeException(exception);
         }
@@ -148,7 +156,9 @@ public class OAuthRepository {
         httpServer.createContext(
                 config.getRedirectPath(),
                 httpExchange -> {
-                    var code = Util.queryToMap(httpExchange.getRequestURI().getQuery()).get("code");
+                    var code =
+                            URIUtils.queryToMap(httpExchange.getRequestURI().getQuery())
+                                    .get("code");
 
                     if (code == null) {
                         throw new IllegalStateException("Code parameter not found");

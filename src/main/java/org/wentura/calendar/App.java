@@ -1,6 +1,6 @@
 package org.wentura.calendar;
 
-import static org.wentura.calendar.util.Util.*;
+import static org.wentura.calendar.util.TimeUtils.getFormattedDuration;
 
 import org.wentura.calendar.data.event.EventRepository;
 import org.wentura.calendar.util.ArgumentParser;

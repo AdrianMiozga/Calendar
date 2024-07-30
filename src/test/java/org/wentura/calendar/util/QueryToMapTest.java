@@ -1,13 +1,14 @@
 package org.wentura.calendar.util;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.wentura.calendar.util.URIUtils.queryToMap;
+
+import static java.util.Map.entry;
+
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-
-import static java.util.Map.entry;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.wentura.calendar.util.Util.queryToMap;
 
 public class QueryToMapTest {
 

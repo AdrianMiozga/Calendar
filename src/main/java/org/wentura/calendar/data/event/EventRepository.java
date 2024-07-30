@@ -1,23 +1,27 @@
 package org.wentura.calendar.data.event;
 
+import static org.wentura.calendar.config.Constants.*;
+import static org.wentura.calendar.util.TimeUtils.getFirstDayOfCurrentMonth;
+import static org.wentura.calendar.util.TimeUtils.getFirstDayOfNextMonth;
+
+import static java.net.HttpURLConnection.*;
+
 import org.wentura.calendar.api.EventService;
 import org.wentura.calendar.data.oauth2.OAuthRepository;
+import org.wentura.calendar.util.UnauthorizedException;
 
-import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
 import java.time.YearMonth;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class EventRepository {
 
-    public static final String BASE_URL = "https://www.googleapis.com/calendar/v3/";
-
     private static final OAuthRepository OAuthRepository = new OAuthRepository();
+
+    public static final String BASE_URL = "https://www.googleapis.com/calendar/v3/";
 
     private final EventService eventService =
             new Retrofit.Builder()
@@ -27,37 +31,49 @@ public class EventRepository {
                     .create(EventService.class);
 
     public List<Event> getEventsFromPrimaryCalendar(YearMonth yearMonth) {
-        String startOffsetDateTime =
-                yearMonth
-                        .atDay(1)
-                        .atStartOfDay()
-                        .atOffset(ZoneOffset.UTC)
-                        .format(DateTimeFormatter.ISO_DATE_TIME);
+        var firstDayOfCurrentMonth = getFirstDayOfCurrentMonth(yearMonth);
+        var firstDayOfNextMonth = getFirstDayOfNextMonth(yearMonth);
 
-        String endOffsetDateTime =
-                yearMonth
-                        .plusMonths(1)
-                        .atDay(1)
-                        .atStartOfDay()
-                        .atOffset(ZoneOffset.UTC)
-                        .format(DateTimeFormatter.ISO_DATE_TIME);
+        var retryCount = 0;
 
-        Call<EventResponse> call =
+        while (retryCount < MAX_HTTP_RETRIES) {
+            try {
+                return fetchEvents(firstDayOfCurrentMonth, firstDayOfNextMonth);
+            } catch (UnauthorizedException exception) {
+                OAuthRepository.deleteSerializedToken();
+                retryCount++;
+            } catch (IOException exception) {
+                retryCount++;
+            }
+        }
+
+        throw new RuntimeException("Failed to fetch events after " + MAX_HTTP_RETRIES + " retries");
+    }
+
+    private List<Event> fetchEvents(String startOffsetDateTime, String endOffsetDateTime)
+            throws IOException, UnauthorizedException {
+        var call =
                 eventService.getEvents(
                         "Bearer " + OAuthRepository.getAccessToken(),
                         startOffsetDateTime,
                         endOffsetDateTime);
 
-        try {
-            var eventResponse = call.execute().body();
+        var response = call.execute();
 
-            if (eventResponse == null) {
-                throw new IllegalStateException("eventResponse is null");
-            }
-
-            return eventResponse.events();
-        } catch (IOException exception) {
-            throw new RuntimeException(exception);
+        if (response.code() == HTTP_UNAUTHORIZED) {
+            throw new UnauthorizedException();
         }
+
+        if (!response.isSuccessful()) {
+            throw new RuntimeException("Request failed with code: " + response.code());
+        }
+
+        var eventResponse = response.body();
+
+        if (eventResponse == null) {
+            throw new IllegalStateException("Event response is null");
+        }
+
+        return eventResponse.events();
     }
 }

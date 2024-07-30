@@ -1,10 +1,10 @@
 package org.wentura.calendar.util;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.wentura.calendar.util.Util.getFormattedDuration;
+import static org.wentura.calendar.util.TimeUtils.getFormattedDuration;
+
+import org.junit.jupiter.api.Test;
 
 public class GetFormattedDurationTest {
 

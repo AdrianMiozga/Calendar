@@ -3,7 +3,7 @@ package org.wentura.calendar.util;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Util {
+public class URIUtils {
 
     public static Map<String, String> queryToMap(String query) {
         if (query == null || query.isBlank()) {
@@ -23,16 +23,5 @@ public class Util {
         }
 
         return result;
-    }
-
-    public static String getFormattedDuration(Long totalSeconds) {
-        if (totalSeconds < 0) {
-            throw new IllegalArgumentException("Seconds can't be negative");
-        }
-
-        var hours = totalSeconds / 3600;
-        var minutes = (totalSeconds % 3600) / 60;
-
-        return String.format("%dh %dm", hours, minutes);
     }
 }
