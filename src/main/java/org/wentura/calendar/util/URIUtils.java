@@ -10,10 +10,10 @@ public class URIUtils {
             return null;
         }
 
-        Map<String, String> result = new HashMap<>();
+        var result = new HashMap<String, String>();
 
-        for (String param : query.split("&")) {
-            String[] entry = param.split("=");
+        for (var param : query.split("&")) {
+            var entry = param.split("=");
 
             if (entry.length > 1) {
                 result.put(entry[0], entry[1]);

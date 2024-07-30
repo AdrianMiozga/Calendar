@@ -28,7 +28,7 @@ public class App {
         var eventRepository = new EventRepository();
         var events = eventRepository.getEventsFromPrimaryCalendar(yearMonth);
 
-        Map<String, Long> eventToTime = new HashMap<>();
+        var eventToTime = new HashMap<String, Long>();
 
         for (var event : events) {
             if (event.start().offsetDateTime() == null || event.end().offsetDateTime() == null) {

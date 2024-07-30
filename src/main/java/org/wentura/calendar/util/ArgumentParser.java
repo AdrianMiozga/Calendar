@@ -20,7 +20,7 @@ public class ArgumentParser {
     }
 
     private static boolean containsHelpOption(String[] args) {
-        for (String arg : args) {
+        for (var arg : args) {
             if ("--help".equals(arg) || "-h".equals(arg) || "help".equals(arg)) {
                 return true;
             }
