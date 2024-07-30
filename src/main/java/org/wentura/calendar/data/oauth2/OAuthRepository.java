@@ -124,7 +124,8 @@ public class OAuthRepository {
                         + config.redirectURI()
                         + "&response_type=code&scope="
                         + String.join("+", scopes)
-                        + "&access_type=offline";
+                        + "&access_type=offline"
+                        + "&prompt=consent";
 
         try {
             httpServer = HttpServer.create(new InetSocketAddress(config.getPort()), 0);
