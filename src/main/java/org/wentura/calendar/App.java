@@ -2,7 +2,6 @@ package org.wentura.calendar;
 
 import static org.wentura.calendar.util.TimeUtils.getFormattedDuration;
 
-import org.wentura.calendar.data.event.EventRepository;
 import org.wentura.calendar.util.ArgumentParser;
 
 import java.time.Duration;
@@ -25,7 +24,8 @@ public class App {
     }
 
     private static Map<String, Long> getEventToTimeMap(YearMonth yearMonth) {
-        var eventRepository = new EventRepository();
+        var component = DaggerAppComponent.create();
+        var eventRepository = component.createEventRepository();
         var events = eventRepository.getEventsFromPrimaryCalendar(yearMonth);
 
         var eventToTime = new HashMap<String, Long>();

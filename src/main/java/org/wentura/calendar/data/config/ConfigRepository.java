@@ -9,11 +9,14 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 
+import javax.inject.Singleton;
+
+@Singleton
 public class ConfigRepository {
 
-    private static Config config;
+    private Config config;
 
-    public static Config getAppConfig() {
+    public Config getAppConfig() {
         if (config != null) {
             return config;
         }

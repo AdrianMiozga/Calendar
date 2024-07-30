@@ -19,6 +19,12 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:$retrofit")
     implementation("com.squareup.retrofit2:converter-gson:$retrofit")
 
+    // DI
+    val dagger = "2.51.1"
+    implementation("com.google.dagger:dagger:$dagger")
+    annotationProcessor("com.google.dagger:dagger-compiler:$dagger")
+
+    // Testing
     testImplementation(platform("org.junit:junit-bom:5.11.0-M2"))
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
 }

@@ -10,25 +10,24 @@ import org.wentura.calendar.api.EventService;
 import org.wentura.calendar.data.oauth2.OAuthRepository;
 import org.wentura.calendar.util.UnauthorizedException;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 import java.io.IOException;
 import java.time.YearMonth;
 import java.util.List;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class EventRepository {
 
-    private static final OAuthRepository OAuthRepository = new OAuthRepository();
+    private final OAuthRepository OAuthRepository;
+    private final EventService eventService;
 
-    public static final String BASE_URL = "https://www.googleapis.com/calendar/v3/";
-
-    private final EventService eventService =
-            new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(EventService.class);
+    @Inject
+    public EventRepository(OAuthRepository OAuthRepository, EventService eventService) {
+        this.OAuthRepository = OAuthRepository;
+        this.eventService = eventService;
+    }
 
     public List<Event> getEventsFromPrimaryCalendar(YearMonth yearMonth) {
         var firstDayOfCurrentMonth = getFirstDayOfCurrentMonth(yearMonth);

@@ -8,9 +8,6 @@ import org.wentura.calendar.data.config.Config;
 import org.wentura.calendar.data.config.ConfigRepository;
 import org.wentura.calendar.util.URIUtils;
 
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
-
 import java.awt.*;
 import java.io.*;
 import java.net.BindException;
@@ -22,21 +19,23 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+@Singleton
 public class OAuthRepository {
 
-    public static final String BASE_URL = "https://oauth2.googleapis.com/";
-
-    private final OAuthService OAuthService =
-            new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build()
-                    .create(OAuthService.class);
-
+    private final OAuthService OAuthService;
+    private final Config config;
     private final CountDownLatch latch = new CountDownLatch(1);
     private HttpServer httpServer;
     private String authorizationCode;
-    private final Config config = ConfigRepository.getAppConfig();
+
+    @Inject
+    public OAuthRepository(OAuthService OAuthService, ConfigRepository configRepository) {
+        this.OAuthService = OAuthService;
+        this.config = configRepository.getAppConfig();
+    }
 
     private static boolean isTokenExpired(AccessToken accessToken) {
         return LocalDateTime.parse(accessToken.dateTimeExpires()).isBefore(LocalDateTime.now());
