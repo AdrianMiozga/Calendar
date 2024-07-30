@@ -193,6 +193,10 @@ public class OAuthRepository {
             throw new IllegalStateException("Access token is null");
         }
 
+        if (accessToken.refreshToken() == null) {
+            throw new IllegalStateException("Refresh token is null");
+        }
+
         var call =
                 OAuthService.getRefreshToken(
                         config.clientId(),
@@ -204,7 +208,7 @@ public class OAuthRepository {
             var refreshToken = call.execute().body();
 
             if (refreshToken == null) {
-                throw new IllegalStateException("Refresh token is null");
+                throw new IllegalStateException("Refresh token API failed");
             }
 
             var updatedAccessToken =
