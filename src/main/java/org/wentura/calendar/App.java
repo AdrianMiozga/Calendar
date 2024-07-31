@@ -60,7 +60,7 @@ public class App {
                         + ": ");
 
         if (eventToTime.isEmpty()) {
-            System.out.println("Not found");
+            System.out.println("None");
         } else {
             for (var pair : eventToTime.entrySet()) {
                 var totalSeconds = pair.getValue();
