@@ -9,9 +9,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 public class App {
 
@@ -28,7 +26,7 @@ public class App {
         var eventRepository = new EventRepository();
         var events = eventRepository.getEventsFromPrimaryCalendar(yearMonth);
 
-        var eventToTime = new HashMap<String, Long>();
+        var eventToTime = new LinkedHashMap<String, Long>();
 
         for (var event : events) {
             if (event.start().offsetDateTime() == null || event.end().offsetDateTime() == null) {
@@ -49,7 +47,17 @@ public class App {
             }
         }
 
-        return eventToTime;
+        var entryList = new ArrayList<>(eventToTime.entrySet());
+
+        entryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
+
+        var sortedMap = new LinkedHashMap<String, Long>();
+
+        for (var entry : entryList) {
+            sortedMap.put(entry.getKey(), entry.getValue());
+        }
+
+        return sortedMap;
     }
 
     private static void printEvents(YearMonth yearMonth, Map<String, Long> eventToTime) {
