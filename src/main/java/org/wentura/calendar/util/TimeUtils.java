@@ -14,7 +14,13 @@ public class TimeUtils {
         var hours = totalSeconds / 3600;
         var minutes = (totalSeconds % 3600) / 60;
 
-        return String.format("%dh %dm", hours, minutes);
+        if (minutes == 0) {
+            return String.format("%dh", hours);
+        } else if (hours == 0) {
+            return String.format("%dm", minutes);
+        } else {
+            return String.format("%dh %dm", hours, minutes);
+        }
     }
 
     public static String getFirstDayOfCurrentMonth(YearMonth yearMonth) {

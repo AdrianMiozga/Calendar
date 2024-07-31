@@ -15,27 +15,27 @@ public class GetFormattedDurationTest {
 
     @Test
     void zeroSecondsInput() {
-        assertEquals("0h 0m", getFormattedDuration(0L));
+        assertEquals("0h", getFormattedDuration(0L));
     }
 
     @Test
     void fiftyNineSecondsInput() {
-        assertEquals("0h 0m", getFormattedDuration(59L));
+        assertEquals("0h", getFormattedDuration(59L));
     }
 
     @Test
     void oneMinuteInput() {
-        assertEquals("0h 1m", getFormattedDuration(60L));
+        assertEquals("1m", getFormattedDuration(60L));
     }
 
     @Test
     void oneHourInput() {
-        assertEquals("1h 0m", getFormattedDuration(3600L));
+        assertEquals("1h", getFormattedDuration(3600L));
     }
     
     @Test
     void ninetyNineInput() {
-        assertEquals("99h 0m", getFormattedDuration(356_400L));
+        assertEquals("99h", getFormattedDuration(356_400L));
     }
 
     @Test
