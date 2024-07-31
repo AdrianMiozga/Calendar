@@ -166,19 +166,20 @@ public class OAuthRepository {
 
                     authorizationCode = code;
 
-                    var response =
-                            """
-                    <div style="margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center;">
-                        <div style="text-align: center; font-size: 32px;">
-                            <p>You can close this tab now</p>
-                        </div>
-                    </div>""";
+                    try (var inputStream =
+                            OAuthRepository.class.getResourceAsStream("/index.html")) {
+                        if (inputStream == null) {
+                            throw new FileNotFoundException("No index.html");
+                        }
 
-                    httpExchange.sendResponseHeaders(200, response.length());
+                        var response = new String(inputStream.readAllBytes());
 
-                    OutputStream outputStream = httpExchange.getResponseBody();
-                    outputStream.write(response.getBytes());
-                    outputStream.close();
+                        httpExchange.sendResponseHeaders(200, response.length());
+
+                        OutputStream outputStream = httpExchange.getResponseBody();
+                        outputStream.write(response.getBytes());
+                        outputStream.close();
+                    }
 
                     httpServer.stop(0);
 
