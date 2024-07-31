@@ -50,3 +50,9 @@ tasks.withType<DefaultLaunch4jTask> {
     outfile = project.name.lowercase() + ".exe"
     headerType = "console"
 }
+
+tasks.register<Copy>("deploy") {
+    dependsOn("createExe")
+    from("build/launch4j")
+    into("C:/Calendar")
+}
