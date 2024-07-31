@@ -119,11 +119,7 @@ public class OAuthRepository {
     }
 
     private String getAuthorizationCode() {
-        var scopes =
-                new String[] {
-                    "https://www.googleapis.com/auth/calendar.readonly",
-                    "https://www.googleapis.com/auth/calendar.events.readonly"
-                };
+        var scopes = new String[] {"https://www.googleapis.com/auth/calendar.events.readonly"};
 
         var uri =
                 "https://accounts.google.com/o/oauth2/v2/auth?client_id="
