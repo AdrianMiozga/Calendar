@@ -38,8 +38,11 @@ CenterActiveWindow()
 
     windowWidth := (workAreaRight - workAreaLeft) * scale
     windowHeight := (workAreaBottom - workAreaTop) * scale
-    windowX := workAreaLeft + ((workAreaRight - workAreaLeft) - windowWidth) / 2
-    windowY := workAreaTop + ((workAreaBottom - workAreaTop) - windowHeight) / 2
+
+    windowX := workAreaLeft +
+        ((workAreaRight - workAreaLeft) - windowWidth) / 2
+    windowY := workAreaTop +
+        ((workAreaBottom - workAreaTop) - windowHeight) / 2
 
     WinMove(windowX, windowY, windowWidth, windowHeight, currentWindowHandle)
 }
