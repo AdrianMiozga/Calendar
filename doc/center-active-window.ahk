@@ -12,17 +12,17 @@ CenterActiveWindow()
         return
     }
 
-    monitorInfo := Buffer(40)
-
-    ; Set cbSize
-    ; https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmonitorinfoa#parameters
-    NumPut("UInt", monitorInfo.Size, monitorInfo, 0)
-
     static MONITOR_DEFAULTTONEAREST := 0x00000002
 
     hMonitor := DllCall("User32.dll\MonitorFromWindow",
         "UInt", currentWindowHandle,
         "UInt", MONITOR_DEFAULTTONEAREST)
+
+    monitorInfo := Buffer(40)
+
+    ; Set cbSize
+    ; https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getmonitorinfoa#parameters
+    NumPut("UInt", monitorInfo.Size, monitorInfo, 0)
 
     DllCall("User32.dll\GetMonitorInfo",
         "Ptr", hMonitor,
