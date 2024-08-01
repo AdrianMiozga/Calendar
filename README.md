@@ -1,6 +1,21 @@
 > [!IMPORTANT]
 > Work in progress.
 
+## Setup
+
+1. Create a new app in [Google Cloud](https://console.cloud.google.com/projectcreate).
+2. Configure OAuth consent screen with `https://www.googleapis.com/auth/calendar.events.readonly` scope.
+3. Add OAuth 2.0 web application client.
+4. Create `config.json` in root project directory or directory with `exe`/`jar` and fill the following template.
+
+```json
+{
+  "clientId": "<google_client_id>",
+  "clientSecret": "<google_client_secret>",
+  "redirectURI": "<google_redirect_uri>"
+}
+```
+
 ## Technology Stack
 
 - Java 16
