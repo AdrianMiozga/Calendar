@@ -1,6 +1,3 @@
-> [!IMPORTANT]
-> Work in progress.
-
 https://github.com/user-attachments/assets/5a4bcb8c-e70e-4457-964e-5ce5917383ba
 
 ## Setup
