@@ -2,11 +2,14 @@ import edu.sc.seis.launch4j.tasks.DefaultLaunch4jTask
 
 plugins {
     id("java")
+    id("application")
     id("com.github.johnrengelman.shadow") version "8.1.1"
     id("edu.sc.seis.launch4j") version "3.0.6"
+    id("org.graalvm.buildtools.native") version "0.10.3"
 }
 
-val mainClass = "org.wentura.calendar.Main"
+val calendarMainClass = "org.wentura.calendar.Main"
+val deployPath = "C:/Calendar"
 group = "org.wentura.calendar"
 version = "0.1.0"
 
@@ -26,9 +29,13 @@ dependencies {
 tasks.jar {
     manifest {
         attributes(
-            "Main-Class" to mainClass
+            "Main-Class" to calendarMainClass
         )
     }
+}
+
+application {
+    mainClass = calendarMainClass
 }
 
 tasks.test {
@@ -46,7 +53,7 @@ tasks.shadowJar {
 }
 
 tasks.withType<DefaultLaunch4jTask> {
-    mainClassName.set(mainClass)
+    mainClassName.set(calendarMainClass)
     outfile = project.name.lowercase() + ".exe"
     headerType = "console"
 }
@@ -54,5 +61,30 @@ tasks.withType<DefaultLaunch4jTask> {
 tasks.register<Copy>("deploy") {
     dependsOn("createExe")
     from("build/launch4j")
-    into("C:/Calendar")
+    into(deployPath)
+}
+
+graalvmNative {
+    binaries {
+        named("main") {
+            mainClass.set(calendarMainClass)
+            buildArgs.addAll("-H:+AddAllCharsets", "-O3", "--enable-url-protocols=http")
+        }
+    }
+
+    agent {
+        metadataCopy {
+            mergeWithExisting.set(true)
+        }
+    }
+}
+
+tasks.register<Copy>("nativeDeploy") {
+    dependsOn("nativeCompile")
+
+    from("build/native/nativeCompile") {
+        exclude("*.args")
+    }
+
+    into(deployPath)
 }

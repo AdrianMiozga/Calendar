@@ -1,0 +1,12 @@
+{
+  "types": [
+    {
+      "name": "java.lang.String"
+    },
+    {
+      "name": "org.wentura.calendar.data.oauth2.AccessToken"
+    }
+  ],
+  "lambdaCapturingTypes": [],
+  "proxies": []
+}

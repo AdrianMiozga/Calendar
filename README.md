@@ -23,9 +23,10 @@ https://github.com/user-attachments/assets/5a4bcb8c-e70e-4457-964e-5ce5917383ba
 - [Gson](https://github.com/google/gson) - serialization/deserialization
 - [JUnit 5](https://junit.org/junit5/) - unit testing
 - [Gradle](https://gradle.org/) - build tool
+  - [Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html)
   - [Shadow](https://github.com/GradleUp/shadow) - creating a fat `jar`
   - [gradle-launch4j](https://github.com/TheBoegl/gradle-launch4j) - creating `exe`
-  - [Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html)
+  - [GraalVM](https://www.graalvm.org/) - creating a native executable
 - [google-java-format](https://github.com/google/google-java-format) with AOSP style - code formatter
 
 ### API
