@@ -1,8 +1,8 @@
 [
   {
-    "interfaces": ["org.wentura.calendar.api.EventService"]
+    "interfaces":["org.wentura.calendar.api.EventService"]
   },
   {
-    "interfaces": ["org.wentura.calendar.api.OAuthService"]
+    "interfaces":["org.wentura.calendar.api.OAuthService"]
   }
 ]
