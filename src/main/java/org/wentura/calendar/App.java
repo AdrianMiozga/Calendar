@@ -2,11 +2,10 @@ package org.wentura.calendar;
 
 import static org.wentura.calendar.util.TimeUtils.getFormattedDuration;
 
-import org.wentura.calendar.data.event.EventRepository;
+import org.wentura.calendar.data.event.DefaultEventRepository;
 import org.wentura.calendar.util.ArgumentParser;
+import org.wentura.calendar.viewmodel.AppViewModel;
 
-import java.time.Duration;
-import java.time.OffsetDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -15,49 +14,12 @@ public class App {
 
     static void run(String[] args) {
         var yearMonth = ArgumentParser.parse(args);
-        var eventToTime = getEventToTimeMap(yearMonth);
+        var appViewModel = new AppViewModel(new DefaultEventRepository());
+        var eventToTime = appViewModel.getEventToTimeMap(yearMonth);
 
         printEvents(yearMonth, eventToTime);
 
         System.exit(0);
-    }
-
-    private static Map<String, Long> getEventToTimeMap(YearMonth yearMonth) {
-        var eventRepository = new EventRepository();
-        var events = eventRepository.getEventsFromPrimaryCalendar(yearMonth);
-
-        var eventToTime = new LinkedHashMap<String, Long>();
-
-        for (var event : events) {
-            if (event.start().offsetDateTime() == null || event.end().offsetDateTime() == null) {
-                continue;
-            }
-
-            var start = OffsetDateTime.parse(event.start().offsetDateTime());
-            var end = OffsetDateTime.parse(event.end().offsetDateTime());
-
-            var duration = Duration.between(start, end);
-
-            if (eventToTime.containsKey(event.title())) {
-                var updatedDuration = eventToTime.get(event.title()) + duration.getSeconds();
-
-                eventToTime.put(event.title(), updatedDuration);
-            } else {
-                eventToTime.put(event.title(), duration.getSeconds());
-            }
-        }
-
-        var entryList = new ArrayList<>(eventToTime.entrySet());
-
-        entryList.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-
-        var sortedMap = new LinkedHashMap<String, Long>();
-
-        for (var entry : entryList) {
-            sortedMap.put(entry.getKey(), entry.getValue());
-        }
-
-        return sortedMap;
     }
 
     private static void printEvents(YearMonth yearMonth, Map<String, Long> eventToTime) {
