@@ -18,10 +18,6 @@ public class ArgumentParser {
     private static List<String> arguments;
 
     public static YearMonth parse(String[] args) {
-        if (args.length == 0) {
-            return YearMonth.now();
-        }
-
         arguments = new LinkedList<>(List.of(args));
 
         if (containsHelpOption()) {
@@ -99,6 +95,10 @@ public class ArgumentParser {
     }
 
     private static YearMonth getYearMonth() {
+        if (arguments.isEmpty()) {
+            return YearMonth.now();
+        }
+
         try {
             return YearMonth.parse(arguments.getFirst());
         } catch (DateTimeParseException exception) {
