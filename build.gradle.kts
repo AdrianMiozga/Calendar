@@ -18,10 +18,17 @@ repositories {
 }
 
 dependencies {
+    // Networking
     val retrofit = "2.11.0"
     implementation("com.squareup.retrofit2:retrofit:$retrofit")
     implementation("com.squareup.retrofit2:converter-gson:$retrofit")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // Logging
+    implementation("org.slf4j:slf4j-api:2.0.16")
+    implementation("ch.qos.logback:logback-classic:1.5.12")
+
+    // Testing
     testImplementation(platform("org.junit:junit-bom:5.11.0-M2"))
     testImplementation("org.junit.jupiter:junit-jupiter-engine")
 }
@@ -45,6 +52,7 @@ tasks.test {
 tasks.clean {
     doLast {
         File("access-token.ser").delete()
+        File("log").delete()
     }
 }
 

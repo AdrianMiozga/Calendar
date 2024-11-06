@@ -21,6 +21,9 @@ https://github.com/user-attachments/assets/5a4bcb8c-e70e-4457-964e-5ce5917383ba
   - [`com.sun.net.httpserver`](https://docs.oracle.com/javase/8/docs/jre/api/net/httpserver/spec/com/sun/net/httpserver/package-summary.html) - HTTP server
 - [Retrofit](https://square.github.io/retrofit/) - HTTP client
 - [Gson](https://github.com/google/gson) - serialization/deserialization
+- Logging
+  - [SLF4J](https://github.com/qos-ch/slf4j) - abstraction layer for various logging frameworks
+  - [Logback](https://github.com/qos-ch/logback) - logging library
 - [JUnit 5](https://junit.org/junit5/) - unit testing
 - [Gradle](https://gradle.org/) - build tool
   - [Kotlin DSL](https://docs.gradle.org/current/userguide/kotlin_dsl.html)

@@ -2,6 +2,11 @@ package org.wentura.calendar.data.oauth2;
 
 import com.sun.net.httpserver.HttpServer;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wentura.calendar.api.OAuthService;
 import org.wentura.calendar.config.Constants;
 import org.wentura.calendar.data.config.Config;
@@ -26,9 +31,16 @@ public class OAuthRepository {
 
     public static final String BASE_URL = "https://oauth2.googleapis.com/";
 
+    private final Logger logger = LoggerFactory.getLogger(OAuthRepository.class);
+    private final HttpLoggingInterceptor interceptor =
+            new HttpLoggingInterceptor(logger::debug)
+                    .setLevel(HttpLoggingInterceptor.Level.BODY);
+    private final OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
     private final OAuthService OAuthService =
             new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
                     .create(OAuthService.class);
@@ -80,6 +92,7 @@ public class OAuthRepository {
         if (accessToken == null) {
             var authorizationCode = getAuthorizationCode();
 
+            logger.info("Getting access token");
             var call =
                     OAuthService.getAccessToken(
                             authorizationCode,
@@ -100,13 +113,15 @@ public class OAuthRepository {
                 throw new IllegalStateException("Access token is null");
             }
 
+            var expirationDate =
+                    LocalDateTime.now().plusSeconds(accessTokenResponse.expiresIn()).toString();
+            logger.info("Access token will expire {}", expirationDate);
+
             var newAccessToken =
                     new AccessToken(
                             accessTokenResponse.accessToken(),
                             accessTokenResponse.refreshToken(),
-                            LocalDateTime.now()
-                                    .plusSeconds(accessTokenResponse.expiresIn())
-                                    .toString());
+                            expirationDate);
 
             writeSerializedToken(newAccessToken);
 
@@ -114,11 +129,14 @@ public class OAuthRepository {
         } else if (isTokenExpired(accessToken)) {
             return getNewAccessToken();
         } else {
+            logger.info("Reusing access token");
             return accessToken.accessToken();
         }
     }
 
     private String getAuthorizationCode() {
+        logger.info("Getting authorization code");
+
         var scopes = new String[] {"https://www.googleapis.com/auth/calendar.events.readonly"};
 
         var uri =
@@ -132,7 +150,12 @@ public class OAuthRepository {
                         + "&prompt=consent";
 
         try {
-            httpServer = HttpServer.create(new InetSocketAddress(config.getPort()), 0);
+            var inetSocketAddress = new InetSocketAddress(config.getHost(), config.getPort());
+            logger.info(
+                    "Starting web server at {}:{}",
+                    inetSocketAddress.getHostName(),
+                    inetSocketAddress.getPort());
+            httpServer = HttpServer.create(inetSocketAddress, 0);
         } catch (BindException exception) {
             System.out.println("Some process is already listening at port " + config.getPort());
             System.exit(1);
@@ -143,6 +166,7 @@ public class OAuthRepository {
         if (Desktop.isDesktopSupported()
                 && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
+                logger.info("Launching browser");
                 Desktop.getDesktop().browse(new URI(uri));
             } catch (URISyntaxException | IOException exception) {
                 throw new RuntimeException(exception);
@@ -160,6 +184,7 @@ public class OAuthRepository {
                         throw new IllegalStateException("Code parameter not found");
                     }
 
+                    logger.info("Retrieved authorization code");
                     authorizationCode = code;
 
                     try (var inputStream =
@@ -195,6 +220,8 @@ public class OAuthRepository {
     }
 
     private String getNewAccessToken() {
+        logger.info("Getting new access token through refresh token");
+
         var accessToken = readSerializedToken();
 
         if (accessToken == null) {

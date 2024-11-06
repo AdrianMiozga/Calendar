@@ -6,6 +6,10 @@ import static org.wentura.calendar.util.TimeUtils.getFirstDayOfNextMonth;
 
 import static java.net.HttpURLConnection.*;
 
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wentura.calendar.api.EventService;
 import org.wentura.calendar.data.oauth2.OAuthRepository;
 import org.wentura.calendar.util.UnauthorizedException;
@@ -21,9 +25,17 @@ public class DefaultEventRepository implements EventRepository {
 
     public static final String BASE_URL = "https://www.googleapis.com/calendar/v3/";
     private static final OAuthRepository OAuthRepository = new OAuthRepository();
+
+    private final Logger logger = LoggerFactory.getLogger(DefaultEventRepository.class);
+    private final HttpLoggingInterceptor interceptor =
+            new HttpLoggingInterceptor(logger::debug)
+                    .setLevel(HttpLoggingInterceptor.Level.BODY);
+    private final OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
+
     private final EventService eventService =
             new Retrofit.Builder()
                     .baseUrl(BASE_URL)
+                    .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
                     .create(EventService.class);

@@ -16,6 +16,10 @@ public record Config(String clientId, String clientSecret, String redirectURI) {
         }
     }
 
+    public String getHost() {
+        return url.getHost();
+    }
+
     public int getPort() {
         return url.getPort();
     }
