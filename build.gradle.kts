@@ -1,4 +1,5 @@
 import edu.sc.seis.launch4j.tasks.DefaultLaunch4jTask
+import java.net.URI
 
 plugins {
     id("java")
@@ -15,6 +16,7 @@ version = "0.1.0"
 
 repositories {
     mavenCentral()
+    maven { url = URI("https://jitpack.io") }
 }
 
 dependencies {
@@ -27,6 +29,9 @@ dependencies {
     // Logging
     implementation("org.slf4j:slf4j-api:2.0.16")
     implementation("ch.qos.logback:logback-classic:1.5.12")
+
+    // Dark Mode Detector
+    implementation("com.github.Dansoftowner:jSystemThemeDetector:3.9.1")
 
     // Testing
     testImplementation(platform("org.junit:junit-bom:5.11.0-M2"))

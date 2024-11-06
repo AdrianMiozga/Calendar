@@ -1,5 +1,6 @@
 package org.wentura.calendar.data.oauth2;
 
+import com.jthemedetecor.OsThemeDetector;
 import com.sun.net.httpserver.HttpServer;
 
 import okhttp3.OkHttpClient;
@@ -187,8 +188,11 @@ public class OAuthRepository {
                     logger.info("Retrieved authorization code");
                     authorizationCode = code;
 
+                    final OsThemeDetector themeDetector = OsThemeDetector.getDetector();
+                    var htmlFile = themeDetector.isDark() ? "/index-dark.html" : "/index-light.html";
+
                     try (var inputStream =
-                            OAuthRepository.class.getResourceAsStream("/index.html")) {
+                            OAuthRepository.class.getResourceAsStream(htmlFile)) {
                         if (inputStream == null) {
                             throw new FileNotFoundException("No index.html");
                         }
