@@ -3,9 +3,7 @@ build/
 .idea/
 !.idea/google-java-format.xml
 
-src/main/resources/application.properties
 TODO.md
 access-token.ser
-Test.java
 config.json
 log
