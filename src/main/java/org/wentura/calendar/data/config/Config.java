@@ -1,6 +1,8 @@
 package org.wentura.calendar.data.config;
 
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 public record Config(String clientId, String clientSecret, String redirectURI) {
@@ -9,8 +11,8 @@ public record Config(String clientId, String clientSecret, String redirectURI) {
 
     public Config {
         try {
-            url = new URL(redirectURI);
-        } catch (MalformedURLException e) {
+            url = new URI(redirectURI).toURL();
+        } catch (MalformedURLException | URISyntaxException e) {
             System.out.println("Invalid redirect URI");
             System.exit(1);
         }
